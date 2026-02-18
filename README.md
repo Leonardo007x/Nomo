@@ -8,6 +8,7 @@ Nomo soluciona el problema de las pequeñas y medianas empresas con ausencia de 
 La plataforma permite a cualquier empresa crear y personalizar su propio sitio web utilizando plantillas prediseñadas, sin necesidad de conocimientos de programación.
 
 ---
+<<<<<<< brayan-cruz
 # ROLES DEL EQUIPO
 
 - Líder del proyecto: Brayan Esmid Cruz Chate
@@ -16,6 +17,10 @@ La plataforma permite a cualquier empresa crear y personalizar su propio sitio w
 - Encargado de presentación: Julián Leonardo Cerón
 
 # ¿Quién lo usará?
+=======
+
+#¿Quién lo usará?
+>>>>>>> main
 
 El sistema será utilizado por:
 
@@ -26,7 +31,11 @@ El sistema será utilizado por:
 
 ---
 
+<<<<<<< brayan-cruz
 # ¿Qué pasaría si no existiera?
+=======
+#¿Qué pasaría si no existiera?
+>>>>>>> main
 
 Si Nomo no existiera:
 
@@ -55,6 +64,7 @@ Si Nomo no existiera:
 Al dividir el sistema, identificamos los siguientes servicios:
 
 1. **Servicio de usuarios**
+<<<<<<< brayan-cruz
    * Creación de cuentas
    * Acceso al sistema
    * Administración de perfiles
@@ -79,11 +89,38 @@ Al dividir el sistema, identificamos los siguientes servicios:
 6. **Servicio de inteligencia artificial**
    * Creación automática de descripciones
    * Soporte en la generación de contenido
+=======
+   - Registro
+   - Inicio de sesión
+   - Gestión de perfiles  
+
+2. **Servicio de autenticación**
+   - Validación de credenciales
+   - Control de acceso  
+
+3. **Servicio de páginas web**
+   - Creación de sitios
+   - Edición de plantillas
+   - Publicación  
+
+4. **Servicio de productos**
+   - Crear, editar y eliminar productos
+   - Asociar productos a una página  
+
+5. **Servicio de imágenes**
+   - Subida de imágenes a Cloudinary
+   - Gestión de recursos multimedia  
+
+6. **Servicio de inteligencia artificial**
+   - Generación de descripciones
+   - Apoyo en creación de contenido  
+>>>>>>> main
 
 ---
 
 ## ¿Qué partes pueden trabajar por separado?
 
+<<<<<<< brayan-cruz
 - El servicio de imágenes puede operar de forma autónoma.
 - La inteligencia artificial puede implementarse como un servicio externo.
 - La base de datos actúa como un servicio centralizado.
@@ -92,22 +129,41 @@ Al dividir el sistema, identificamos los siguientes servicios:
 ---
 
 # ¿CÓMO SE COMUNICAN?  
+=======
+- El servicio de imágenes puede funcionar de manera independiente.
+- La inteligencia artificial puede operar como un servicio externo.
+- La base de datos funciona como un servicio centralizado.
+- El frontend y backend están separados del almacenamiento multimedia.
+
+---
+
+# PARTE 3 – ¿CÓMO SE COMUNICAN?  
+>>>>>>> main
 
 ## Comunicación entre servicios
 
 Ejemplos dentro del sistema:
 
+<<<<<<< brayan-cruz
 - Usuarios → requiere → Servicio de Autenticación
 - Páginas Web → accede a → Base de Datos
 - Productos → obtiene información de → Base de Datos
 - Servicio de IA → provee respuesta a → Páginas Web
 - Imágenes → guarda archivos en → Cloudinary
 
+=======
+- Usuarios → solicita → Autenticación  
+- Páginas Web → solicita → Base de Datos  
+- Productos → consulta → Base de Datos  
+- Servicio de IA → responde → Páginas Web  
+- Imágenes → almacena → Cloudinary  
+>>>>>>> main
 
 ---
 
 ## Flujo general
 
+<<<<<<< brayan-cruz
 1. El usuario accede al sistema.
 2. El sistema verifica las credenciales ingresadas.
 3. El usuario genera una nueva página.
@@ -117,6 +173,17 @@ Ejemplos dentro del sistema:
 7. La página se despliega en Vercel.
 
 Cada servicio desempeña una tarea específica y se integra con los demás a través de solicitudes y respuestas.
+=======
+1. El usuario inicia sesión.
+2. El sistema valida credenciales.
+3. El usuario crea una página.
+4. Se guardan datos en la base de datos.
+5. Si sube imágenes, se envían a Cloudinary.
+6. Si solicita contenido, se consulta el servicio de IA.
+7. Se publica la página en Vercel.
+
+Cada servicio cumple una función específica y se comunica mediante solicitudes y respuestas.
+>>>>>>> main
 
 ---
 
@@ -130,6 +197,7 @@ Cada servicio desempeña una tarea específica y se integra con los demás a tra
 
 ---
 
+<<<<<<< brayan-cruz
 ## Justificación de nuestra elección
 
 Elegimos una arquitectura de microservicios debido a que el sistema cuenta con múltiples funcionalidades independientes que pueden escalar de manera individual, tales como:
@@ -163,6 +231,49 @@ La base de datos debe encargarse de almacenar:
 - Información de los productos
 - Enlaces (URLs) de las imágenes
 - Fechas de registro y última actualización
+=======
+## Justificación
+
+Elegimos arquitectura de microservicios porque el sistema tiene varias funciones independientes que pueden escalar por separado, como:
+
+- Autenticación  
+- Gestión de productos  
+- Inteligencia artificial  
+- Almacenamiento de imágenes  
+
+Además, al estar desplegado en Vercel y conectado con servicios externos como Supabase, Groq y Cloudinary, el sistema ya funciona como un conjunto de servicios distribuidos.
+
+Este tipo de arquitectura permite:
+
+- Escalabilidad  
+- Mejor mantenimiento  
+- Separación de responsabilidades  
+- Mayor flexibilidad  
+
+---
+
+## Consideraciones de usuarios y escalabilidad
+
+El sistema puede crecer a muchos usuarios, ya que cualquier negocio podría registrarse. Por eso necesita ser escalable y tolerante a fallos.
+
+No es un sistema pequeño, ya que integra múltiples servicios externos y manejo de datos en la nube.
+
+---
+
+# PARTE 5 – BASE DE DATOS  
+
+## ¿Qué información debe guardarse?
+
+La base de datos debe almacenar:
+
+- Información de usuarios  
+- Credenciales de acceso  
+- Datos de los negocios  
+- Configuración de páginas web  
+- Productos  
+- URLs de imágenes  
+- Fechas de creación y actualización  
+>>>>>>> main
 
 ---
 
@@ -170,6 +281,7 @@ La base de datos debe encargarse de almacenar:
 
 Los datos más importantes son:
 
+<<<<<<< brayan-cruz
 - Datos de identificación del usuario
 - Información correspondiente al negocio
 - Productos que han sido publicados
@@ -207,3 +319,20 @@ Posibles soluciones:
 - Mostrar mensajes de error controlados y comprensibles para el usuario.
 - Realizar copias de seguridad periódicas de la base de datos.
 - Establecer monitoreo constante del sistema.
+=======
+- Identidad del usuario  
+- Información del negocio  
+- Productos publicados  
+- Configuración de la página  
+
+Si estos datos se pierden, el negocio perdería su presencia digital dentro de la plataforma.
+
+---
+
+# Conclusión
+
+Nomo es un sistema distribuido que integra múltiples servicios en la nube para permitir que negocios creen y gestionen su presencia digital de manera sencilla.
+
+La arquitectura basada en microservicios facilita la escalabilidad, el mantenimiento y la integración con servicios externos, haciendo que el sistema sea flexible y preparado para crecer.
+
+>>>>>>> main
