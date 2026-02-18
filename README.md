@@ -203,7 +203,7 @@ No todos cuentan con los mismos permisos:
 - Cloudinary: no se podrían subir ni visualizar imágenes.
   
 Posibles soluciones:
-I- mplementar mecanismos de reintento automático.
+- Implementar mecanismos de reintento automático.
 - Mostrar mensajes de error controlados y comprensibles para el usuario.
 - Realizar copias de seguridad periódicas de la base de datos.
 - Establecer monitoreo constante del sistema.
