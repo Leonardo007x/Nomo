@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Actividad Clase 4</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f6f8;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 900px;
+  margin: auto;
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+h1, h2 {
+  color: #2c3e50;
+}
+
+h1 {
+  text-align: center;
+}
+
+.section {
+  margin-top: 30px;
+}
+
+label {
+  font-weight: bold;
+}
+
+.line {
+  border-bottom: 1px solid #ccc;
+  margin: 8px 0 16px 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
+}
+
+th {
+  background-color: #e9eef3;
+}
+
+.note {
+  background: #eef7ff;
+  padding: 15px;
+  border-left: 4px solid #3498db;
+  margin-top: 20px;
+}
+
+.diagrama {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 20px 0;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+}
+
+.diagrama-box {
+  padding: 10px 16px;
+  background: #3498db;
+  color: white;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.diagrama-box.sd {
+  background: #9b59b6;
+}
+
+.diagrama-flecha {
+  font-size: 20px;
+  color: #2c3e50;
+}
+
+.diagrama-leyenda {
+  font-size: 13px;
+  color: #555;
+  margin-top: 10px;
+}
+
+.footer {
+  margin-top: 30px;
+  padding: 15px;
+  background: #f1f1f1;
+  border-radius: 8px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>🌐 Actividad Clase 4</h1>
+<h2>Comunicación entre Servicios + REST + Eventos + Service Discovery</h2>
+
+<p><strong>Equipo:</strong> Elkin Yandun, Brayan Cruz, Julian Ceron, Jeison Guerra</p>
+<p><strong>Proyecto:</strong> Nomo</p>
+
+<div class="section">
+<h2>🪜 1. Interacciones entre Servicios</h2>
+
+<p><strong>Interacción 1</strong></p>
+<label>Servicio que envía: </label>
+<div class="line">Servicio de Usuarios / Frontend</div>
+<label>Servicio que recibe:</label>
+<div class="line">Servicio de Autenticación</div>
+<label>Información enviada:</label>
+<div class="line">Credenciales (usuario y contraseña)</div>
+<label>¿Qué sucede si no responde?</label>
+<div class="line">El usuario no podría iniciar sesión ni acceder al sistema.</div>
+
+<p><strong>Interacción 2</strong></p>
+<label>Servicio que envía: </label>
+<div class="line">Servicio de Páginas Web</div>
+<label>Servicio que recibe:</label>
+<div class="line">Base de datos (Supabase)</div>
+<label>Información enviada:</label>
+<div class="line">Configuraciones de la página, detalles del negocio y datos a almacenar</div>
+<label>¿Qué sucede si no responde?</label>
+<div class="line">No se podría almacenar ni consultar información; las páginas no podrían guardarse ni desplegarse.</div>
+
+<p><strong>Interacción 3</strong></p>
+<label>Servicio que envía: </label>
+<div class="line">Servicio de Imágenes / Páginas Web</div>
+<label>Servicio que recibe:</label>
+<div class="line">Cloudinary (almacenamiento de imágenes)</div>
+<label>Información enviada:</label>
+<div class="line">Archivos multimedia (imágenes) para productos y páginas</div>
+<label>¿Qué sucede si no responde?</label>
+<div class="line">No se podrían subir ni visualizar imágenes; el usuario tendría que usar solo texto.</div>
+</div>
+
+<div class="section">
+<h2>🪜 2. REST o Eventos</h2>
+
+<table>
+<tr>
+<th>Interacción</th>
+<th>REST</th>
+<th>Evento</th>
+<th>¿Por qué?</th>
+</tr>
+<tr>
+<td>Usuarios → Autenticación</td>
+<td>☑</td>
+<td>☐</td>
+<td>Es una petición directa: el cliente envía credenciales y espera una respuesta (token/sesión).</td>
+</tr>
+<tr>
+<td>Páginas Web → Base de Datos</td>
+<td>☑</td>
+<td>☐</td>
+<td>Consultas y escrituras a la BD son operaciones request-response (Supabase API REST).</td>
+</tr>
+<tr>
+<td>Páginas Web → IA / Imágenes</td>
+<td>☑</td>
+<td>☐</td>
+<td>Se envía una solicitud y se espera la respuesta (descripción o URL de imagen). Podría usarse evento para notificar cuando la imagen esté lista si fuera asíncrono.</td>
+</tr>
+</table>
+</div>
+
+<div class="section">
+<h2>🪜 3. Síncrono o Asíncrono</h2>
+
+<table>
+<tr>
+<th>Interacción</th>
+<th>Síncrono</th>
+<th>Asíncrono</th>
+<th>Justificación</th>
+</tr>
+<tr>
+<td>Autenticación</td>
+<td>☑</td>
+<td>☐</td>
+<td>El usuario debe esperar la verificación para poder continuar; sin respuesta no hay sesión.</td>
+</tr>
+<tr>
+<td>Base de Datos</td>
+<td>☑</td>
+<td>☐</td>
+<td>Guardar y leer datos es necesario de forma inmediata para mostrar o actualizar la página.</td>
+</tr>
+<tr>
+<td>IA / Imágenes</td>
+<td>☑</td>
+<td>☐</td>
+<td>En la implementación actual se espera la respuesta. La subida de imágenes podría ser asíncrona (colas) para no bloquear la interfaz.</td>
+</tr>
+</table>
+</div>
+
+<div class="section">
+<h2>🪜 4. Eventos Importantes del Sistema</h2>
+1️⃣ <strong>Usuario inicia sesión</strong> — Se verifica identidad y se crea la sesión.<br><br>
+2️⃣ <strong>Usuario crea o edita una página web</strong> — Se guarda la configuración en la base de datos y, si aplica, se envían imágenes a Cloudinary y consultas al servicio de IA.<br><br>
+3️⃣ <strong>Usuario publica la página</strong> — La página se despliega en Vercel y queda disponible para visitantes.
+</div>
+
+<div class="section">
+<h2>🪜 5. Análisis de Fallos</h2>
+<label>Servicio más crítico:</label>
+<div class="line">Base de datos (Supabase) y servidor principal (Vercel). Sin ellos no hay aplicación ni persistencia.</div>
+<label>¿Qué pasaría si falla?</label>
+<div class="line">Supabase: no se podría almacenar ni consultar información. Vercel: la aplicación dejaría de estar disponible.</div>
+<label>¿El sistema debe detenerse o continuar?</label>
+<div class="line">Debe intentar continuar con degradación: mostrar mensajes de error controlados, permitir uso sin IA (descripción manual) o sin imágenes (placeholders), y reintentos automáticos donde sea posible.</div>
+<label>¿Cómo podrían manejar este fallo?</label>
+<div class="line">Reintento automático; mensajes de error comprensibles; copias de seguridad periódicas de la base de datos; monitoreo constante del sistema.</div>
+</div>
+
+<div class="section">
+<h2>🪜 6. Service Discovery</h2>
+<label>¿Qué problema ocurre si cambia la IP de un servicio?</label>
+<div class="line">Los demás servicios que dependen de él no podrían conectarse; las solicitudes fallarían y habría errores de conexión. Habría que actualizar manualmente las URLs en cada cliente.</div>
+<label>¿Cómo sabría un servicio dónde encontrar otro?</label>
+<div class="line">Por configuración estática (URLs hardcodeadas), variables de entorno, o mediante Service Discovery que mantiene un registro dinámico de las ubicaciones y estados de los servicios.</div>
+<label>¿Por qué sería útil Service Discovery?</label>
+<div class="line">Permite que los servicios se encuentren automáticamente cuando cambian IPs, puertos o se añaden réplicas; facilita la escalabilidad independiente y el despliegue en entornos como contenedores o Kubernetes.</div>
+<label>¿Dónde lo aplicarían en su sistema?</label>
+<div class="line">Entre el backend en Vercel y los servicios externos (Supabase, Groq, Cloudinary) cuando se escalen o se migre a múltiples instancias; o entre microservicios internos si la arquitectura crece (por ejemplo, desacoplar IA, imágenes o autenticación en servicios propios).</div>
+</div>
+
+<div class="section">
+<h2>🪜 7. Mini Diagrama</h2>
+<p>Dibujen:</p>
+<p><strong>Servicio de Pagina Web → Service Discovery → Base de Datos</strong></p>
+</div>
+
+<div class="note">
+💡 <strong>Ayuda rápida</strong><br>
+REST → petición directa<br>
+Evento → algo ocurrió<br>
+Síncrono → espera respuesta<br>
+Asíncrono → continúa sin esperar<br>
+Service Discovery → permite encontrar servicios automáticamente
+</div>
+
+<div class="footer">
+🎤 El equipo debe poder explicar:<br>
+✔ una interacción importante<br>
+✔ un evento del sistema<br>
+✔ qué pasa si un servicio falla<br>
+✔ dónde usarían Service Discovery
+</div>
+
+</div>
+</body>
+</html>
