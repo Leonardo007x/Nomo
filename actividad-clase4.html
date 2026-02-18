@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Actividad Clase 4</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f6f8;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 900px;
+  margin: auto;
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+h1, h2 {
+  color: #2c3e50;
+}
+
+h1 {
+  text-align: center;
+}
+
+.section {
+  margin-top: 30px;
+}
+
+label {
+  font-weight: bold;
+}
+
+.line {
+  border-bottom: 1px solid #ccc;
+  margin: 8px 0 16px 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
+}
+
+th {
+  background-color: #e9eef3;
+}
+
+.note {
+  background: #eef7ff;
+  padding: 15px;
+  border-left: 4px solid #3498db;
+  margin-top: 20px;
+}
+
+.footer {
+  margin-top: 30px;
+  padding: 15px;
+  background: #f1f1f1;
+  border-radius: 8px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>🌐 Actividad Clase 4</h1>
+<h2>Comunicación entre Servicios + REST + Eventos + Service Discovery</h2>
+
+<p><strong>Equipo:</strong> Brayan Esmid Cruz Chate, Jeison Guerra, Elkin Yesid Yandun, Julián Leonardo Cerón</p>
+<p><strong>Proyecto:</strong> Nomo</p>
+
+<div class="section">
+<h2>🪜 1. Interacciones entre Servicios</h2>
+
+<p><strong>Interacción 1</strong></p>
+<label>Servicio que envía:</label>
+<div class="line">Módulo de Usuarios (frontend)</div>
+<label>Servicio que recibe:</label>
+<div class="line">Servicio de Autenticación</div>
+<label>Información enviada:</label>
+<div class="line">Credenciales de acceso (correo y contraseña) para verificar la identidad del usuario</div>
+<label>¿Qué sucede si no responde?</label>
+<div class="line">El usuario no podría iniciar sesión. La aplicación debería mostrar un mensaje de error y ofrecer reintentar o informar que el servicio no está disponible.</div>
+
+<p><strong>Interacción 2</strong></p>
+<label>Servicio que envía:</label>
+<div class="line">Servicio de Páginas Web / Productos</div>
+<label>Servicio que recibe:</label>
+<div class="line">Base de Datos (Supabase)</div>
+<label>Información enviada:</label>
+<div class="line">Datos del negocio, configuraciones de la página y productos para almacenar o consultar</div>
+<label>¿Qué sucede si no responde?</label>
+<div class="line">No sería posible guardar ni recuperar la información. El sistema debería reintentar la operación y, si persiste el fallo, mostrar un mensaje claro al usuario indicando que debe intentar más tarde.</div>
+
+<p><strong>Interacción 3</strong></p>
+<label>Servicio que envía:</label>
+<div class="line">Servicio de Imágenes</div>
+<label>Servicio que recibe:</label>
+<div class="line">Cloudinary</div>
+<label>Información enviada:</label>
+<div class="line">Archivos multimedia (imágenes de productos, logos) que el usuario sube para su negocio</div>
+<label>¿Qué sucede si no responde?</label>
+<div class="line">Las imágenes no se podrían subir ni visualizar. La aplicación podría permitir que el usuario continúe creando su página y subir las imágenes después, o mostrar un aviso de que el almacenamiento temporalmente no está disponible.</div>
+</div>
+
+<div class="section">
+<h2>🪜 2. REST o Eventos</h2>
+
+<table>
+<tr>
+<th>Interacción</th>
+<th>REST</th>
+<th>Evento</th>
+<th>¿Por qué?</th>
+</tr>
+<tr>
+<td>1 (Usuarios → Autenticación)</td>
+<td>✓</td>
+<td></td>
+<td>Es una petición directa: el usuario envía sus credenciales y necesita una respuesta inmediata para saber si puede entrar o no al sistema.</td>
+</tr>
+<tr>
+<td>2 (Páginas/Productos → Base de Datos)</td>
+<td>✓</td>
+<td></td>
+<td>Consultas y operaciones directas a la base de datos. Se hace una petición y se espera obtener o confirmar los datos almacenados.</td>
+</tr>
+<tr>
+<td>3 (Imágenes → Cloudinary)</td>
+<td>✓</td>
+<td></td>
+<td>Subida de archivos mediante petición HTTP. El servicio envía el archivo y espera la confirmación y la URL de la imagen subida.</td>
+</tr>
+</table>
+</div>
+
+<div class="section">
+<h2>🪜 3. Síncrono o Asíncrono</h2>
+
+<table>
+<tr>
+<th>Interacción</th>
+<th>Síncrono</th>
+<th>Asíncrono</th>
+<th>Justificación</th>
+</tr>
+<tr>
+<td>1 (Autenticación)</td>
+<td>✓</td>
+<td></td>
+<td>El usuario debe esperar la verificación para continuar. No tendría sentido dejarlo avanzar sin saber si sus credenciales son válidas.</td>
+</tr>
+<tr>
+<td>2 (Base de Datos)</td>
+<td>✓</td>
+<td></td>
+<td>Se requiere la información para mostrar la página o confirmar que se guardó correctamente. La operación debe completarse antes de seguir.</td>
+</tr>
+<tr>
+<td>3 (Cloudinary)</td>
+<td>✓</td>
+<td></td>
+<td>Aunque teóricamente podría ser asíncrona, en nuestra implementación el usuario espera la confirmación de la subida para poder usar la imagen en su sitio.</td>
+</tr>
+</table>
+</div>
+
+<div class="section">
+<h2>🪜 4. Eventos Importantes del Sistema</h2>
+1️⃣ <b>Usuario inicia sesión:</b> El sistema verifica las credenciales y permite o deniega el acceso al panel del negocio.<br><br>
+2️⃣ <b>Se crea o se publica una página web:</b> La información se guarda en la base de datos y, si corresponde, se despliega en Vercel para que los visitantes puedan verla.<br><br>
+3️⃣ <b>Se genera contenido con IA:</b> Cuando el usuario solicita una descripción automática para un producto, el servicio de IA (Groq) procesa la petición y devuelve el texto generado.
+</div>
+
+<div class="section">
+<h2>🪜 5. Análisis de Fallos</h2>
+<label>Servicio más crítico:</label>
+<div class="line">La base de datos (Supabase) y el servidor principal (Vercel). Sin ellos, la plataforma prácticamente no podría operar.</div>
+<label>¿Qué pasaría si falla?</label>
+<div class="line">Si falla la base de datos, no sería posible almacenar ni consultar información: los negocios no podrían editar su contenido ni los visitantes ver las páginas. Si falla Vercel, la aplicación dejaría de estar disponible por completo.</div>
+<label>¿El sistema debe detenerse o continuar?</label>
+<div class="line">Cuando falla un servicio crítico, lo ideal es que la aplicación no se caiga por completo sino que muestre mensajes de error comprensibles al usuario, intente reintentar la operación y sugiera intentar más tarde. Si es posible, algunas funciones secundarias (como visualizar páginas ya cargadas en caché) podrían seguir funcionando.</div>
+<label>¿Cómo podrían manejar este fallo?</label>
+<div class="line">Implementar reintentos automáticos, mostrar mensajes de error claros, realizar copias de seguridad periódicas de la base de datos y monitorear constantemente el estado del sistema para detectar fallos cuanto antes.</div>
+</div>
+
+<div class="section">
+<h2>🪜 6. Service Discovery</h2>
+<label>¿Qué problema ocurre si cambia la IP de un servicio?</label>
+<div class="line">Los demás servicios no sabrían cómo contactarlo. Si un microservicio cambia de dirección, las peticiones fallarían porque seguirían apuntando a la dirección antigua, lo que provocaría errores y posiblemente caídas en la comunicación entre componentes.</div>
+<label>¿Cómo sabría un servicio dónde encontrar otro?</label>
+<div class="line">Mediante un registro centralizado de servicios: cada servicio se registra al iniciar y actualiza su información. Cuando otro necesita comunicarse con él, consulta ese registro para obtener la dirección actual (IP, puerto o URL) sin tenerla hardcodeada.</div>
+<label>¿Por qué sería útil Service Discovery?</label>
+<div class="line">Permite que los servicios se encuentren de forma dinámica cuando hay múltiples instancias, despliegues en distintos entornos o cambios de infraestructura. Evita tener que actualizar manualmente las direcciones en cada servicio y facilita la escalabilidad y el mantenimiento.</div>
+<label>¿Dónde lo aplicarían en su sistema?</label>
+<div class="line">Sería especialmente útil si en el futuro Nomo tuviera más microservicios desplegados de forma dinámica (por ejemplo, varias instancias del servicio de autenticación o del de IA para distribuir carga). En la arquitectura actual con Vercel, Supabase y Cloudinary, las URLs son relativamente fijas, pero Service Discovery ayudaría si se añadieran más servicios propios que puedan cambiar de ubicación o replicarse.</div>
+</div>
+
+<div class="section">
+<h2>🪜 7. Mini Diagrama</h2>
+<p>Dibujen:</p>
+<p><strong>Servicio A → Service Discovery → Servicio B</strong></p>
+</div>
+
+<div class="note">
+💡 <strong>Ayuda rápida</strong><br>
+REST → petición directa<br>
+Evento → algo ocurrió<br>
+Síncrono → espera respuesta<br>
+Asíncrono → continúa sin esperar<br>
+Service Discovery → permite encontrar servicios automáticamente
+</div>
+
+<div class="footer">
+🎤 El equipo debe poder explicar:<br>
+✔ una interacción importante<br>
+✔ un evento del sistema<br>
+✔ qué pasa si un servicio falla<br>
+✔ dónde usarían Service Discovery
+</div>
+
+</div>
+</body>
+</html>
