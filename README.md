@@ -89,3 +89,53 @@ Ejemplo de flujo:
 - Usuario crea un producto → Backend guarda la información en la base de datos.  
 - Usuario genera descripción → Backend solicita contenido a la IA → IA responde con el texto generado.
 
+---
+
+# PARTE 4 — ELEGIR LA ARQUITECTURA
+
+Arquitectura seleccionada: Microservicios
+
+## ¿Cuántos usuarios tendrá el sistema?
+
+Se espera que pueda tener múltiples negocios registrados, por lo que debe estar preparado para crecer.
+
+## ¿Necesita escalar?
+
+Sí. La plataforma debe soportar el crecimiento de usuarios y negocios.
+
+## ¿Es un sistema pequeño o grande?
+
+Actualmente es un sistema en crecimiento, pero con potencial de convertirse en una plataforma grande.
+
+## Justificación
+
+Elegimos esta arquitectura porque el sistema trabaja con varios servicios independientes como base de datos, almacenamiento de imágenes e inteligencia artificial. Esta separación permite mayor escalabilidad, mantenimiento más sencillo y mejor organización del sistema.
+
+---
+
+# PARTE 5 — BASE DE DATOS
+
+## ¿Qué información debe guardarse?
+
+- Usuarios  
+- Negocios  
+- Productos  
+- Configuración de plantillas  
+- Información personalizada de cada página  
+
+## ¿Qué datos son críticos?
+
+- Datos de autenticación  
+- Información de los negocios  
+- Productos registrados  
+
+## ¿Qué pasaría si se pierden?
+
+Se perdería la información de los usuarios y sus páginas web dejarían de funcionar correctamente.
+
+## ¿Todos los servicios usan la misma base de datos o cada uno tiene la suya?
+
+Actualmente todos los servicios utilizan la misma base de datos centralizada.
+
+---
+
