@@ -10,7 +10,7 @@ La plataforma permite a cualquier empresa crear y personalizar su propio sitio w
 ---
 # ROLES DEL EQUIPO
 
--Líder del proyecto: Brayan Esmid Cruz Chate
+- Líder del proyecto: Brayan Esmid Cruz Chate
 - Encargado de documentación: Jeison Guerra
 - Encargado técnico: Elkin Yesid Yandun
 - Encargado de presentación: Julián Leonardo Cerón
