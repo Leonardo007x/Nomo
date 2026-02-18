@@ -8,8 +8,14 @@ Nomo soluciona el problema de las pequeñas y medianas empresas con ausencia de 
 La plataforma permite a cualquier empresa crear y personalizar su propio sitio web utilizando plantillas prediseñadas, sin necesidad de conocimientos de programación.
 
 ---
+# ROLES DEL EQUIPO
 
-#¿Quién lo usará?
+- Líder del proyecto: Brayan Esmid Cruz Chate
+- Encargado de documentación: Jeison Guerra
+- Encargado técnico: Elkin Yesid Yandun
+- Encargado de presentación: Julián Leonardo Cerón
+
+# ¿Quién lo usará?
 
 El sistema será utilizado por:
 
@@ -20,7 +26,7 @@ El sistema será utilizado por:
 
 ---
 
-#¿Qué pasaría si no existiera?
+# ¿Qué pasaría si no existiera?
 
 Si Nomo no existiera:
 
@@ -49,67 +55,68 @@ Si Nomo no existiera:
 Al dividir el sistema, identificamos los siguientes servicios:
 
 1. **Servicio de usuarios**
-   - Registro
-   - Inicio de sesión
-   - Gestión de perfiles  
+   * Creación de cuentas
+   * Acceso al sistema
+   * Administración de perfiles
 
 2. **Servicio de autenticación**
-   - Validación de credenciales
-   - Control de acceso  
+   * Verificación de credenciales
+   * Gestión de permisos de acceso
 
 3. **Servicio de páginas web**
-   - Creación de sitios
-   - Edición de plantillas
-   - Publicación  
+   * Desarrollo de sitios web
+   * Modificación de plantillas
+   * Puesta en línea
 
 4. **Servicio de productos**
-   - Crear, editar y eliminar productos
-   - Asociar productos a una página  
+   * Agregar, modificar y eliminar artículos
+   * Vincular productos a un sitio web
 
 5. **Servicio de imágenes**
-   - Subida de imágenes a Cloudinary
-   - Gestión de recursos multimedia  
+   * Carga de imágenes en Cloudinary
+   * Administración de archivos multimedia
 
 6. **Servicio de inteligencia artificial**
-   - Generación de descripciones
-   - Apoyo en creación de contenido  
+   * Creación automática de descripciones
+   * Soporte en la generación de contenido
 
 ---
 
 ## ¿Qué partes pueden trabajar por separado?
 
-- El servicio de imágenes puede funcionar de manera independiente.
-- La inteligencia artificial puede operar como un servicio externo.
-- La base de datos funciona como un servicio centralizado.
-- El frontend y backend están separados del almacenamiento multimedia.
+- El servicio de imágenes puede operar de forma autónoma.
+- La inteligencia artificial puede implementarse como un servicio externo.
+- La base de datos actúa como un servicio centralizado.
+- El frontend y el backend se encuentran desacoplados del almacenamiento multimedia.
 
 ---
 
-# PARTE 3 – ¿CÓMO SE COMUNICAN?  
+# ¿CÓMO SE COMUNICAN?  
 
 ## Comunicación entre servicios
 
 Ejemplos dentro del sistema:
 
-- Usuarios → solicita → Autenticación  
-- Páginas Web → solicita → Base de Datos  
-- Productos → consulta → Base de Datos  
-- Servicio de IA → responde → Páginas Web  
-- Imágenes → almacena → Cloudinary  
+- Usuarios → requiere → Servicio de Autenticación
+- Páginas Web → accede a → Base de Datos
+- Productos → obtiene información de → Base de Datos
+- Servicio de IA → provee respuesta a → Páginas Web
+- Imágenes → guarda archivos en → Cloudinary
+
 
 ---
 
 ## Flujo general
 
-1. El usuario inicia sesión.
-2. El sistema valida credenciales.
-3. El usuario crea una página.
-4. Se guardan datos en la base de datos.
-5. Si sube imágenes, se envían a Cloudinary.
-6. Si solicita contenido, se consulta el servicio de IA.
-7. Se publica la página en Vercel.
+1. El usuario accede al sistema.
+2. El sistema verifica las credenciales ingresadas.
+3. El usuario genera una nueva página.
+4. La información se almacena en la base de datos.
+5. Si se cargan imágenes, estas se envían a Cloudinary.
+6. Si se requiere contenido, se realiza una consulta al servicio de IA.
+7. La página se despliega en Vercel.
 
-Cada servicio cumple una función específica y se comunica mediante solicitudes y respuestas.
+Cada servicio desempeña una tarea específica y se integra con los demás a través de solicitudes y respuestas.
 
 ---
 
@@ -123,47 +130,39 @@ Cada servicio cumple una función específica y se comunica mediante solicitudes
 
 ---
 
-## Justificación
+## Justificación de nuestra elección
 
-Elegimos arquitectura de microservicios porque el sistema tiene varias funciones independientes que pueden escalar por separado, como:
+Elegimos una arquitectura de microservicios debido a que el sistema cuenta con múltiples funcionalidades independientes que pueden escalar de manera individual, tales como:
 
-- Autenticación  
-- Gestión de productos  
-- Inteligencia artificial  
-- Almacenamiento de imágenes  
+- Autenticación
+- Administración de productos
+- Inteligencia artificial
+- Gestión de almacenamiento de imágenes
 
-Además, al estar desplegado en Vercel y conectado con servicios externos como Supabase, Groq y Cloudinary, el sistema ya funciona como un conjunto de servicios distribuidos.
+Además, al estar implementado en Vercel y vinculado con servicios externos como Supabase, Groq y Cloudinary, el sistema opera como un conjunto de servicios distribuidos.
 
-Este tipo de arquitectura permite:
+Este enfoque arquitectónico permite:
 
-- Escalabilidad  
-- Mejor mantenimiento  
-- Separación de responsabilidades  
-- Mayor flexibilidad  
-
----
-
-## Consideraciones de usuarios y escalabilidad
-
-El sistema puede crecer a muchos usuarios, ya que cualquier negocio podría registrarse. Por eso necesita ser escalable y tolerante a fallos.
-
-No es un sistema pequeño, ya que integra múltiples servicios externos y manejo de datos en la nube.
+- Escalabilidad independiente
+- Mantenimiento más eficiente
+- Separación clara de responsabilidades
+- Mayor adaptabilidad y flexibilidad
 
 ---
 
-# PARTE 5 – BASE DE DATOS  
+# BASE DE DATOS  
 
 ## ¿Qué información debe guardarse?
 
-La base de datos debe almacenar:
+La base de datos debe encargarse de almacenar:
 
-- Información de usuarios  
-- Credenciales de acceso  
-- Datos de los negocios  
-- Configuración de páginas web  
-- Productos  
-- URLs de imágenes  
-- Fechas de creación y actualización  
+- Datos de los usuarios
+- Información de autenticación
+- Detalles de los negocios
+- Configuraciones de las páginas web
+- Información de los productos
+- Enlaces (URLs) de las imágenes
+- Fechas de registro y última actualización
 
 ---
 
@@ -171,18 +170,40 @@ La base de datos debe almacenar:
 
 Los datos más importantes son:
 
-- Identidad del usuario  
-- Información del negocio  
-- Productos publicados  
-- Configuración de la página  
+- Datos de identificación del usuario
+- Información correspondiente al negocio
+- Productos que han sido publicados
+- Ajustes y configuración de la página
 
-Si estos datos se pierden, el negocio perdería su presencia digital dentro de la plataforma.
+Si esta información se pierde, el negocio quedaría sin su presencia digital dentro de la plataforma.
+
 
 ---
 
-# Conclusión
+# FAllAS Y RIESGOS
 
-Nomo es un sistema distribuido que integra múltiples servicios en la nube para permitir que negocios creen y gestionen su presencia digital de manera sencilla.
+## ¿Quién usará el sistema?
 
-La arquitectura basada en microservicios facilita la escalabilidad, el mantenimiento y la integración con servicios externos, haciendo que el sistema sea flexible y preparado para crecer.
+- Administrador
+- Cliente (propietario del negocio)
+- Visitante (persona que accede a la página pública del negocio)
 
+No todos cuentan con los mismos permisos:
+- El administrador tiene la capacidad de administrar la plataforma.
+- El cliente puede modificar y gestionar la información de su negocio.
+- El visitante únicamente puede visualizar la página pública.
+
+---
+
+# FALLAS Y RIESGOS
+
+- Servicio de IA (Groq): no se generarían descripciones automáticas.
+  Base de datos (Supabase): no sería posible almacenar ni consultar información.
+- Servidor principal (Vercel): la aplicación dejaría de estar disponible.
+- Cloudinary: no se podrían subir ni visualizar imágenes.
+  
+Posibles soluciones:
+- Implementar mecanismos de reintento automático.
+- Mostrar mensajes de error controlados y comprensibles para el usuario.
+- Realizar copias de seguridad periódicas de la base de datos.
+- Establecer monitoreo constante del sistema.
