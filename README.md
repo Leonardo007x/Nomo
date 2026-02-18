@@ -26,7 +26,7 @@ El sistema será utilizado por:
 
 ---
 
-#¿Qué pasaría si no existiera?
+# ¿Qué pasaría si no existiera?
 
 Si Nomo no existiera:
 
