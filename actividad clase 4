@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Actividad Clase 4</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f6f8;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 900px;
+  margin: auto;
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+h1, h2 {
+  color: #2c3e50;
+}
+
+h1 {
+  text-align: center;
+}
+
+.section {
+  margin-top: 30px;
+}
+
+label {
+  font-weight: bold;
+}
+
+.line {
+  border-bottom: 1px solid #ccc;
+  margin: 8px 0 16px 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
+}
+
+th {
+  background-color: #e9eef3;
+}
+
+.note {
+  background: #eef7ff;
+  padding: 15px;
+  border-left: 4px solid #3498db;
+  margin-top: 20px;
+}
+
+.footer {
+  margin-top: 30px;
+  padding: 15px;
+  background: #f1f1f1;
+  border-radius: 8px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>🌐 Actividad Clase 4</h1>
+<h2>Comunicación entre Servicios + REST + Eventos + Service Discovery</h2>
+
+<p><strong>Equipo:</strong> NOMO Team</p>
+<p><strong>Proyecto:</strong> NOMO</p>
+
+<div class="section">
+<h2>🪜 1. Interacciones entre Servicios</h2>
+
+<p><strong>Interacción 1</strong></p>
+<label>Servicio que envía:</label>
+<div class="line">Frontend</div>
+<label>Servicio que recibe:</label>
+<div class="line">Backend</div>
+<label>Información enviada:</label>
+<div class="line">Datos de creación o edición de un producto</div>
+<label>¿Qué sucede si no responde?</label>
+<div class="line">El usuario no puede guardar cambios y recibe un mensaje de error</div>
+
+<p><strong>Interacción 2</strong></p>
+<div class="line">Backend envía solicitud a la base de datos para guardar o consultar información</div>
+
+<p><strong>Interacción 3</strong></p>
+<div class="line">Backend solicita generación de descripción al servicio de inteligencia artificial</div>
+</div>
+
+<div class="section">
+<h2>🪜 2. REST o Eventos</h2>
+
+<table>
+<tr>
+<th>Interacción</th>
+<th>REST</th>
+<th>Evento</th>
+<th>¿Por qué?</th>
+</tr>
+<tr>
+<td>1</td>
+<td>X</td>
+<td></td>
+<td>Es una petición directa donde el frontend espera respuesta inmediata</td>
+</tr>
+<tr>
+<td>2</td>
+<td>X</td>
+<td></td>
+<td>El backend consulta directamente la base de datos</td>
+</tr>
+<tr>
+<td>3</td>
+<td>X</td>
+<td></td>
+<td>El backend envía una solicitud directa al servicio de IA y espera el texto generado</td>
+</tr>
+</table>
+</div>
+
+<div class="section">
+<h2>🪜 3. Síncrono o Asíncrono</h2>
+
+<table>
+<tr>
+<th>Interacción</th>
+<th>Síncrono</th>
+<th>Asíncrono</th>
+<th>Justificación</th>
+</tr>
+<tr>
+<td>1</td>
+<td>X</td>
+<td></td>
+<td>El usuario necesita confirmación inmediata de que la acción fue realizada</td>
+</tr>
+<tr>
+<td>2</td>
+<td>X</td>
+<td></td>
+<td>El sistema debe esperar la respuesta de la base de datos para continuar</td>
+</tr>
+<tr>
+<td>3</td>
+<td>X</td>
+<td></td>
+<td>Se requiere la respuesta de la IA antes de mostrar la descripción al usuario</td>
+</tr>
+</table>
+</div>
+
+<div class="section">
+<h2>🪜 4. Eventos Importantes del Sistema</h2>
+1️⃣ Usuario registra un nuevo negocio<br><br>
+2️⃣ Producto creado o actualizado<br><br>
+3️⃣ Página web publicada
+</div>
+
+<div class="section">
+<h2>🪜 5. Análisis de Fallos</h2>
+<label>Servicio más crítico:</label>
+<div class="line">Base de datos</div>
+<label>¿Qué pasaría si falla?</label>
+<div class="line">No se podrían guardar ni consultar datos del sistema</div>
+<label>¿El sistema debe detenerse o continuar?</label>
+<div class="line">Debe mostrar errores controlados pero no colapsar completamente</div>
+<label>¿Cómo podrían manejar este fallo?</label>
+<div class="line">Copias de seguridad, reintentos automáticos y monitoreo constante</div>
+</div>
+
+<div class="section">
+<h2>🪜 6. Service Discovery</h2>
+<label>¿Qué problema ocurre si cambia la IP de un servicio?</label>
+<div class="line">Los demás servicios no sabrían cómo comunicarse con él</div>
+<label>¿Cómo sabría un servicio dónde encontrar otro?</label>
+<div class="line">Consultando un registro central de servicios</div>
+<label>¿Por qué sería útil Service Discovery?</label>
+<div class="line">Permite localizar servicios automáticamente sin configurar IP fija</div>
+<label>¿Dónde lo aplicarían en su sistema?</label>
+<div class="line">Entre el backend y los servicios externos como base de datos o IA</div>
+</div>
+
+<div class="section">
+<h2>🪜 7. Mini Diagrama</h2>
+<p>Dibujen:</p>
+<p>
+Usuarios → envían solicitudes a → Servicio Backend<br><br>
+Servicio Backend → consulta mediante → Service Discovery<br><br>
+Service Discovery → dirige petición a → Servicio de Autenticación<br><br>
+Servicio Backend → obtiene datos desde → Base de Datos<br><br>
+Servicio Backend → solicita procesamiento a → Servicio de IA<br><br>
+Servicio de IA → devuelve resultado a → Servicio Backend<br><br>
+Servicio Backend → almacena imágenes en → Cloudinary<br><br>
+Páginas Web generadas → consumen datos desde → Base de Datos
+</p>
+</div>
+
+<div class="note">
+💡 <strong>Ayuda rápida</strong><br>
+REST → petición directa<br>
+Evento → algo ocurrió<br>
+Síncrono → espera respuesta<br>
+Asíncrono → continúa sin esperar<br>
+Service Discovery → permite encontrar servicios automáticamente
+</div>
+
+<div class="footer">
+🎤 El equipo debe poder explicar:<br>
+✔ una interacción importante<br>
+✔ un evento del sistema<br>
+✔ qué pasa si un servicio falla<br>
+✔ dónde usarían Service Discovery
+</div>
+
+</div>
+</body>
+</html>
