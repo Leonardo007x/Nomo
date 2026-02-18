@@ -6,77 +6,77 @@ Descripción del proyecto
 
 NOMO es una plataforma web desarrollada en TypeScript que permite a emprendedores y pequeños negocios crear y personalizar su propia página web mediante plantillas prediseñadas.
 
-El sistema está desplegado en Vercel
-La base de datos está en Supabase
-La inteligencia artificial se integra mediante Groq
-La gestión de imágenes se realiza con Cloudinary
+- El sistema está desplegado en Vercel
+- La base de datos está en Supabase
+- La inteligencia artificial se integra mediante Groq
+- La gestión de imágenes se realiza con Cloudinary
 
 Problema que resuelve
 
-Muchos pequeños negocios no cuentan con presencia digital
+- Muchos pequeños negocios no cuentan con presencia digital
 
-Falta de conocimientos técnicos para crear una página web
+- Falta de conocimientos técnicos para crear una página web
 
-Costos elevados al contratar desarrolladores
+-  Costos elevados al contratar desarrolladores
 
 Si el sistema no existiera, muchos negocios seguirían sin visibilidad en internet o dependerían de soluciones más costosas.
 
 Usuarios del sistema
 
-Administrador
+- Administrador
 
-Usuario dueño del negocio
+- Usuario dueño del negocio
 
-Visitante
+- Visitante
 
 No todos los usuarios tienen los mismos permisos.
-El administrador gestiona la plataforma.
-El usuario crea y edita su página.
-El visitante solo visualiza la información.
+- El administrador gestiona la plataforma.
+- El usuario crea y edita su página.
+- El visitante solo visualiza la información.
 
 Servicios identificados
 
-Servicio de usuarios
+- Servicio de usuarios
 
-Servicio de autenticación
+- Servicio de autenticación
 
-Servicio de gestión de páginas
+ - Servicio de gestión de páginas
 
-Servicio de productos
+- Servicio de productos
 
-Servicio de imágenes
+- Servicio de imágenes
 
-Servicio de inteligencia artificial
+- Servicio de inteligencia artificial
 
-Servicio de base de datos
+- Servicio de base de datos
 
 Procesos independientes
 
-La generación de texto con IA funciona de manera independiente
+- La generación de texto con IA funciona de manera independiente
 
-La gestión de imágenes es un servicio externo
+- La gestión de imágenes es un servicio externo
 
-La base de datos centraliza la información del sistema
+- La base de datos centraliza la información del sistema
 
 Comunicación entre servicios
 
-Páginas solicita información a Productos
+- Páginas solicita información a Productos
 
-Productos guarda datos en Base de datos
+- Productos guarda datos en Base de datos
 
-IA responde a Páginas
+- IA responde a Páginas
 
-Imágenes devuelve URL al sistema
+- Imágenes devuelve URL al sistema
 
-El frontend solicita datos al backend
+- El frontend solicita datos al backend
 
 Arquitectura seleccionada
 
-Tipo Arquitectura híbrida
+- Tipo Arquitectura híbrida
 
 Se eligió esta arquitectura porque
 
-Permite escalar si aumentan los usuarios
+- Permite escalar si aumentan los usuarios
 
 Separa responsabilidades
 
