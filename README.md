@@ -1,6 +1,6 @@
 # Nomo
 
-## ¿Que problema resuleve el sistema?
+## ¿Que problema resuelve el sistema?
 
 Muchos negocios pequeños no tienen una pagina web propia o dependen de herramientas genéricas donde no controlan bien su catálogo ni el menu para actualizarlo correctamente.  
 Nomo les da una presencia digital rápida, editable y “presentable”, donde pueden mostrar sus productos con plantillas y textos generados o asistidos por IA.
