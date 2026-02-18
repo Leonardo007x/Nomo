@@ -46,3 +46,32 @@ Muchos terminarían o sin web, o pegados a un solo marketplace, o usando links i
 
 - **Opcional futuro: servicio de pagos/pedidos**
     Si Nomo evoluciona de “solo presencia” a “mini e-commerce”, ahí entrarían pagos y pedidos.
+
+## Parte 3
+
+## ¿Como se comunican?
+
+- Frontend (la app en Vercel) → solicita → Servicio de autenticación.
+
+    Para login, registro, recuperación de sesión, etc.
+- Frontend → solicita → Servicio de proyectos/sitios.
+  
+    Para crear, listar y configurar las páginas de los negocios.
+
+- Proyectos/sitios → consulta → Servicio de productos.
+  
+    Cuando construyes la página pública, el sitio necesita saber qué productos mostrar, en qué orden, etc.
+
+- Frontend / Proyectos → usa → Servicio de medios (Cloudinary).
+  
+    Subes fotos desde la app y guardas solo las URLs/metadata en Supabase.
+
+- Frontend / Proyectos → llama → Servicio de IA (Groq).
+  
+    Envías contexto (tipo de negocio, productos) y recibes textos sugeridos para descripciones, encabezados, etc.
+
+- Analíticas ← recibe eventos de → Sitios públicos.
+  
+    Cada visita o clic se manda como evento para luego mostrar estadísticas al dueño.​
+
+
