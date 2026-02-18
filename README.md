@@ -8,6 +8,7 @@ Nomo soluciona el problema de las pequeñas y medianas empresas con ausencia de 
 La plataforma permite a cualquier empresa crear y personalizar su propio sitio web utilizando plantillas prediseñadas, sin necesidad de conocimientos de programación.
 
 ---
+
 # ROLES DEL EQUIPO
 
 - Líder del proyecto: Brayan Esmid Cruz Chate
