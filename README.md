@@ -14,7 +14,7 @@ NOMO es una plataforma que permite a pequeños y medianos negocios crear su prop
 - Jeison Javier Guerra – Encargado de documentación  
 
 **Repositorio:**  
-[El proyecto se encuentra alojado en GitHub y el equipo tiene acceso compartido.](https://github.com/Leonardo007x/Nomo)
+[El proyecto se encuentra alojado en GitHub.](https://github.com/Leonardo007x/Nomo)
 
 ---
 
@@ -138,4 +138,86 @@ Se perdería la información de los usuarios y sus páginas web dejarían de fun
 Actualmente todos los servicios utilizan la misma base de datos centralizada.
 
 ---
+
+# PARTE 6 — IDENTIFICAR USUARIOS
+
+## ¿Quién usará el sistema?
+
+- Administrador  
+- Cliente (dueño del negocio)  
+- Visitante (usuario final que ve la página pública)
+
+## ¿Todos pueden hacer lo mismo?
+
+No.  
+El administrador gestiona la plataforma.  
+El cliente puede crear y editar su negocio.  
+El visitante solo puede visualizar la información pública.
+
+---
+
+# PARTE 7 — FALLAS Y RIESGOS
+
+## ¿Qué pasaría si falla el servicio de IA?
+
+No se podrían generar descripciones automáticas, pero el usuario podría escribirlas manualmente.
+
+## ¿Qué pasaría si falla la base de datos?
+
+No se podrían guardar ni consultar datos, afectando el funcionamiento general del sistema.
+
+## ¿Qué pasaría si falla el servidor principal?
+
+La aplicación no estaría disponible temporalmente.
+
+## Posibles soluciones
+
+- Implementar reintentos automáticos.  
+- Mostrar mensajes de error controlados.  
+- Realizar copias de seguridad periódicas.  
+- Monitorear el estado del sistema.
+
+---
+
+# PARTE 8 — DOCUMENTACIÓN EN EL README
+
+Este documento incluye:
+
+- Descripción del proyecto  
+- Problema que resuelve  
+- Servicios identificados  
+- Comunicación entre servicios  
+- Arquitectura seleccionada  
+- Usuarios del sistema  
+- Riesgos y posibles soluciones  
+
+---
+
+# PARTE 9 — COMMIT Y PULL REQUEST
+
+Commits realizados por sección:
+
+- doc: definición de servicios  
+- doc: comunicación entre servicios  
+- doc: arquitectura seleccionada  
+- doc: usuarios del sistema  
+
+Pull Request:
+
+**Título:**  
+Arquitectura inicial del sistema  
+
+**Descripción:**  
+Se definieron los servicios principales, la comunicación entre ellos, la arquitectura seleccionada, los usuarios del sistema y los posibles riesgos.
+
+---
+
+# PARTE 10 — REVISIÓN DEL EQUIPO
+
+Cada integrante debe:
+
+- Leer la arquitectura completa.  
+- Sugerir mejoras.  
+- Identificar posibles fallos.  
+- Confirmar que el diseño tenga coherencia y posibilidad de escalabilidad.
 
