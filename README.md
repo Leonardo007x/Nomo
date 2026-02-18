@@ -1,6 +1,5 @@
 # Nomo
 
-## Parte 1
 ## ¿Que problema resuleve el sistema?
 
 Muchos negocios pequeños no tienen una pagina web propia o dependen de herramientas genéricas donde no controlan bien su catálogo ni el menu para actualizarlo correctamente.  
@@ -22,7 +21,6 @@ Cada rol tiene permisos distintos: el admin ve todo, el dueño solo su contenido
 
 Muchos terminarían o sin web, o pegados a un solo marketplace, o usando links improvisados tipo Canva/Wix sin control sobre los datos ni la experiencia.
 
-## Parte 2
 
 ## Identificar los servicios
 
@@ -46,8 +44,6 @@ Muchos terminarían o sin web, o pegados a un solo marketplace, o usando links i
 
 - **Opcional futuro: servicio de pagos/pedidos**
     Si Nomo evoluciona de “solo presencia” a “mini e-commerce”, ahí entrarían pagos y pedidos.
-
-## Parte 3
 
 ## ¿Como se comunican?
 
@@ -74,15 +70,12 @@ Muchos terminarían o sin web, o pegados a un solo marketplace, o usando links i
   
     Cada visita o clic se manda como evento para luego mostrar estadísticas al dueño.​
 
-## Parte 4
-
 ## Tipo de arquitectura
 
 ☑ Microservicios
 
 Elegimos esta arquitectura porque se puede separar IA, medios y analíticas como servicios más independientes perfecto para escalar ya que contara con muchos usuarios simultaneos y con tiendas que se pueden visitar de manera cotidiana ademas que se tiene pensado para un sistema grande.
 
-## Parte 5 
 
 ## Datos del sistema
 
@@ -101,7 +94,6 @@ Datos criticos
 ¿Una base para todos o varias?
 Como usamos supabase lo normal es usar una sola base de datos para todo y ya separalos con tablas para todo.
 
-## Parte 6
 
 ## Usuarios del sistema
 
@@ -115,9 +107,45 @@ No:
 - Dueño solo ve y gestiona sus propios sitios y productos.
 - Visitante solo consume, no toca el panel ni la configuración.
 
-## Parte 7
-
 ## Fallas y Riesgos
+
+### Falla de Supabase (DB)
+
+**Impacto**  
+- No se pueden leer ni guardar sitios, productos ni usuarios.  
+- El panel deja de funcionar correctamente.  
+- Las páginas públicas fallan ya que son consultas en tiempo real.
+
+**Mitigación**  
+- Backups automáticos y probados.  
+- Manejo de errores y mensajes claros al usuario.
+
+### Falla de Cloudinary
+
+**Impacto**  
+- Las imágenes pueden no mostrarse o tardar demasiado.  
+
+**Mitigación**  
+- Placeholders por defecto cuando falle la carga.  
+
+### Falla del servicio de IA
+
+**Impacto**  
+- Los usuarios no pueden generar textos automáticamente, pero el resto del sistema sigue funcional.
+
+**Mitigación**  
+- Mostrar mensajes claros (“la IA no está disponible, escribe el texto manualmente”).  
+- Reintentar algunas solicitudes y registrar errores para revisión.
+
+### Falla del despliegue / servidor (Vercel)
+
+**Impacto**  
+- El panel de administración puede no estar disponible.  
+- Las páginas públicas se ven afectadas y no cargan.
+
+**Mitigación**  
+- Mantener las páginas públicas lo más estáticas posible.  
+- Monitoreo del estado de despliegues.  
 
 
 
