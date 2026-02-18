@@ -1,161 +1,74 @@
 # Nomo
+Proyecto - NOMO
 
-Plataforma para creación de presencia digital para negocios
+NOMO es una plataforma creada para que pequeños y medianos negocios puedan construir su propia página web usando plantillas editables. La idea principal es ofrecer una solución práctica a personas que quieren tener presencia digital pero no saben programar ni pueden pagar un desarrollo a medida.
 
-Descripción del proyecto
+Equipo de trabajo -
+Brayan Esmid Cruz cumple el rol de líder del proyecto.
+Julián Leonardo Cerón se encarga de la parte de presentación.
+Elkin Yesid Yandun asume la responsabilidad técnica.
+Jeison Javier Guerra desarrolla la documentación.
 
-NOMO es una plataforma web desarrollada en TypeScript que permite a emprendedores y pequeños negocios crear y personalizar su propia página web mediante plantillas prediseñadas.
+La aplicación está desplegada en Vercel y utiliza Supabase como sistema de base de datos. Para la generación de contenido automático se integra Groq y el manejo de imágenes se realiza mediante Cloudinary.
 
-- El sistema está desplegado en Vercel
-- La base de datos está en Supabase
-- La inteligencia artificial se integra mediante Groq
-- La gestión de imágenes se realiza con Cloudinary
+PARTE 1 - ENTENDER EL PROBLEMA
 
-Problema que resuelve
+El sistema busca resolver la dificultad que tienen muchos emprendedores para crear una página web profesional. Con NOMO pueden organizar su información, mostrar productos y personalizar su sitio sin conocimientos técnicos.
 
-- Muchos pequeños negocios no cuentan con presencia digital
+Los principales usuarios son emprendedores, pequeñas empresas y personas que venden productos por redes sociales y necesitan una página web sencilla.
 
-- Falta de conocimientos técnicos para crear una página web
+Si la plataforma no existiera, estos negocios tendrían que limitarse a redes sociales o asumir mayores costos para contratar a un desarrollador, lo que frenaría su crecimiento digital.
 
--  Costos elevados al contratar desarrolladores
+PARTE 2 - IDENTIFICAR LOS SERVICIOS
 
-Si el sistema no existiera, muchos negocios seguirían sin visibilidad en internet o dependerían de soluciones más costosas.
+El sistema se compone de varios módulos que cumplen funciones específicas. Existe un componente encargado del registro y autenticación de usuarios, otro que administra los negocios y sus páginas, uno dedicado a los productos, un servicio que genera descripciones automáticamente con inteligencia artificial, otro que gestiona las imágenes y finalmente el servicio que almacena toda la información.
 
-Usuarios del sistema
+Algunas tareas funcionan de forma independiente, como la carga de imágenes o la generación de texto con IA. También el guardado y consulta de datos opera de manera separada del renderizado de las plantillas.
 
-- Administrador
+PARTE 3 - COMUNICACIÓN ENTRE COMPONENTES
 
-- Usuario dueño del negocio
+La interacción comienza cuando el usuario realiza una acción en la interfaz. El frontend envía la solicitud al backend. El backend procesa la petición y, si es necesario, consulta la base de datos o se comunica con servicios externos. Una vez obtiene la respuesta, la devuelve al frontend para que el usuario vea el resultado.
 
-- Visitante
+Por ejemplo, cuando se crea un producto, el backend registra la información en la base de datos. Si el usuario solicita una descripción automática, el backend envía la petición al servicio de IA y luego entrega el texto generado.
 
-No todos los usuarios tienen los mismos permisos.
-- El administrador gestiona la plataforma.
-- El usuario crea y edita su página.
-- El visitante solo visualiza la información.
+PARTE 4 - ARQUITECTURA
 
-Servicios identificados
+Se adopta una arquitectura basada en microservicios. Esto se debe a que el sistema está compuesto por varios servicios que pueden operar de manera relativamente independiente, como la base de datos, el almacenamiento de imágenes y la inteligencia artificial.
 
-- Servicio de usuarios
+La plataforma está pensada para crecer en número de usuarios, por lo que necesita una estructura que permita escalar y mantener cada parte sin afectar a las demás. Aunque actualmente es un proyecto en desarrollo, se diseñó considerando una posible expansión futura.
 
-- Servicio de autenticación
+PARTE 5 - BASE DE DATOS
 
- - Servicio de gestión de páginas
+El sistema almacena información relacionada con usuarios, negocios, productos y configuraciones de cada página. También guarda datos necesarios para la autenticación y personalización.
 
-- Servicio de productos
+Los datos más sensibles son las credenciales de acceso y la información comercial de los negocios. Si estos datos se pierden, las páginas dejarían de funcionar correctamente y se afectaría la confianza de los usuarios.
 
-- Servicio de imágenes
+Actualmente se utiliza una base de datos centralizada en Supabase que es compartida por los distintos módulos del sistema.
 
-- Servicio de inteligencia artificial
+PARTE 6 - TIPOS DE USUARIO
 
-- Servicio de base de datos
+Dentro del sistema existen tres perfiles principales. El administrador supervisa y controla la plataforma. El cliente, que es el dueño del negocio, crea y modifica su página. El visitante únicamente visualiza la información pública. Cada perfil tiene permisos distintos según su función.
 
-Procesos independientes
+PARTE 7 - FALLAS Y RIESGOS
 
-- La generación de texto con IA funciona de manera independiente
+Si el servicio de inteligencia artificial deja de funcionar, simplemente no se podrán generar descripciones automáticas, aunque el usuario podrá escribirlas manualmente.
 
-- La gestión de imágenes es un servicio externo
+Si la base de datos falla, no sería posible guardar ni consultar información, lo que impactaría directamente el funcionamiento general.
 
-- La base de datos centraliza la información del sistema
+Si el servidor principal presenta una caída, la aplicación no estaría disponible temporalmente.
 
-Comunicación entre servicios
+Para reducir riesgos se consideran medidas como reintentos automáticos, mensajes de error controlados, copias de seguridad y monitoreo constante del sistema.
 
-- Páginas solicita información a Productos
+PARTE 8 - DOCUMENTACIÓN
 
-- Productos guarda datos en Base de datos
+El README del repositorio incluye la explicación del problema, los servicios definidos, la arquitectura adoptada, la forma en que se comunican los componentes, los tipos de usuario y los riesgos identificados.
 
-- IA responde a Páginas
+PARTE 9 - CONTROL DE VERSIONES
 
-- Imágenes devuelve URL al sistema
+Los cambios se organizan por secciones relacionadas con la documentación de servicios, arquitectura, comunicación y usuarios.
 
-- El frontend solicita datos al backend
+El Pull Request titulado Arquitectura inicial del sistema resume las decisiones tomadas en esta primera etapa y deja registro de la estructura definida.
 
-Arquitectura seleccionada
+PARTE 10 - REVISIÓN
 
-- Tipo Arquitectura híbrida
-
-Se eligió esta arquitectura porque
-
-- Permite escalar si aumentan los usuarios
-
-Separa responsabilidades
-
-Facilita el mantenimiento
-
-Integra servicios externos especializados
-
-El sistema combina modelo cliente servidor con servicios externos independientes.
-
-Base de datos
-
-Información almacenada
-
-Usuarios
-
-Datos del negocio
-
-Productos
-
-Plantillas seleccionadas
-
-Configuraciones personalizadas
-
-URLs de imágenes
-
-Datos críticos
-
-Información de usuarios
-
-Datos comerciales
-
-Productos publicados
-
-Si estos datos se pierden, los negocios perderían su información y su presencia digital.
-
-La mayoría de servicios comparten la misma base de datos en Supabase mientras que imágenes e IA funcionan como servicios externos.
-
-Fallas y riesgos
-
-Posibles fallos
-
-Falla del servicio de IA
-
-Falla de la base de datos
-
-Falla del servidor principal
-
-Posibles soluciones
-
-Reintentos automáticos
-
-Mensajes de error claros
-
-Copias de seguridad
-
-Monitoreo del sistema
-
-Organización de commits
-
-doc definición de servicios
-
-doc comunicación entre servicios
-
-doc arquitectura seleccionada
-
-doc usuarios del sistema
-
-Pull request
-
-Título Arquitectura inicial del sistema
-
-Descripción definición de servicios comunicación arquitectura usuarios y riesgos
-
-Revisión del equipo
-
-Leer la arquitectura
-
-Sugerir mejoras
-
-Identificar posibles fallos
-
-Confirmar que el diseño tiene coherencia
+Cada integrante revisa la propuesta completa, aporta observaciones, identifica posibles debilidades y valida que la arquitectura tenga coherencia y capacidad de crecimiento.
