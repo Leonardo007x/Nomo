@@ -74,4 +74,52 @@ Muchos terminarían o sin web, o pegados a un solo marketplace, o usando links i
   
     Cada visita o clic se manda como evento para luego mostrar estadísticas al dueño.​
 
+## Parte 4
+
+## Tipo de arquitectura
+
+☑ Microservicios
+
+Elegimos esta arquitectura porque se puede separar IA, medios y analíticas como servicios más independientes perfecto para escalar ya que contara con muchos usuarios simultaneos y con tiendas que se pueden visitar de manera cotidiana ademas que se tiene pensado para un sistema grande.
+
+## Parte 5 
+
+## Datos del sistema
+
+Datos que se guardan
+- Usuarios
+- Sitios Web / Proyectos
+- Productos
+- Configuracion
+- Analitica / Graficas
+
+Datos criticos
+- Usuarios
+- Sitios Web / Proyectos
+- Productos
+
+¿Una base para todos o varias?
+Como usamos supabase lo normal es usar una sola base de datos para todo y ya separalos con tablas para todo.
+
+## Parte 6
+
+## Usuarios del sistema
+
+- Admin de la plataforma (Admin)
+- Creador de sitios (Empresario)
+- Cliente
+
+¿Todos pueden hacer lo mismo?
+No:
+- Admin ve estadísticas globales, billing, moderación.
+- Dueño solo ve y gestiona sus propios sitios y productos.
+- Visitante solo consume, no toca el panel ni la configuración.
+
+## Parte 7
+
+## Fallas y Riesgos
+
+
+
+
 
