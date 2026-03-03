@@ -1,237 +1,318 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-<meta charset="UTF-8">
-<title>Actividad Clase 4</title>
-<style>
-body {
-  font-family: Arial, sans-serif;
-  background-color: #f4f6f8;
-  margin: 0;
-  padding: 0;
-}
+  <meta charset="UTF-8">
+  <title>Actividad Clase 4</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f8;
+      margin: 0;
+      padding: 0;
+    }
 
-.container {
-  max-width: 900px;
-  margin: auto;
-  background: white;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
 
-h1, h2 {
-  color: #2c3e50;
-}
+    h1,
+    h2 {
+      color: #2c3e50;
+    }
 
-h1 {
-  text-align: center;
-}
+    h1 {
+      text-align: center;
+    }
 
-.section {
-  margin-top: 30px;
-}
+    .section {
+      margin-top: 30px;
+    }
 
-label {
-  font-weight: bold;
-}
+    label {
+      font-weight: bold;
+    }
 
-.line {
-  border-bottom: 1px solid #ccc;
-  margin: 8px 0 16px 0;
-}
+    .line {
+      border-bottom: 1px solid #ccc;
+      margin: 8px 0 16px 0;
+    }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-}
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
 
-th, td {
-  border: 1px solid #ccc;
-  padding: 8px;
-  text-align: center;
-}
+    th,
+    td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
 
-th {
-  background-color: #e9eef3;
-}
+    th {
+      background-color: #e9eef3;
+    }
 
-.note {
-  background: #eef7ff;
-  padding: 15px;
-  border-left: 4px solid #3498db;
-  margin-top: 20px;
-}
+    .note {
+      background: #eef7ff;
+      padding: 15px;
+      border-left: 4px solid #3498db;
+      margin-top: 20px;
+    }
 
-.footer {
-  margin-top: 30px;
-  padding: 15px;
-  background: #f1f1f1;
-  border-radius: 8px;
-}
-</style>
+    .footer {
+      margin-top: 30px;
+      padding: 15px;
+      background: #f1f1f1;
+      border-radius: 8px;
+    }
+  </style>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true });
+  </script>
 </head>
+
 <body>
 
-<div class="container">
+  <div class="container">
 
-<h1>🌐 Actividad Clase 4</h1>
-<h2>Comunicación entre Servicios + REST + Eventos + Service Discovery</h2>
+    <h1>🌐 Actividad Clase 4</h1>
+    <h2>Comunicación entre Servicios + REST + Eventos + Service Discovery</h2>
 
-<p><strong>Equipo:</strong> brayan esmid cruz, ekin yesid yandun, julian ceron, yeison guerra</p>
-<p><strong>Proyecto:</strong> nomo</p>
+    <p><strong>Equipo:</strong> brayan esmid cruz, ekin yesid yandun, julian ceron, yeison guerra</p>
+    <p><strong>Proyecto:</strong> nomo</p>
 
-<div class="section">
-<h2>🪜 1. Interacciones entre Servicios</h2>
+    <div class="section">
+      <h2>🪜 1. Interacciones entre Servicios</h2>
 
-<p><strong>Interacción 1</strong></p>
-<label>Servicio que envía:</label>
-<div class="line">Servicio de Usuarios</div>
-<label>Servicio que recibe:</label>
-<div class="line">Servicio de Autenticación</div>
-<label>Información enviada:</label>
-<div class="line">Credenciales de acceso (usuario y contraseña)</div>
-<label>¿Qué sucede si no responde?</label>
-<div class="line">El usuario no podrá acceder al sistema. Se debe mostrar un mensaje de error y permitir reintentos.</div>
+      <p><strong>Interacción 1</strong></p>
+      <label>Servicio que envía:</label>
+      <div class="line">Servicio de Usuarios</div>
+      <label>Servicio que recibe:</label>
+      <div class="line">Servicio de Autenticación</div>
+      <label>Información enviada:</label>
+      <div class="line">Credenciales de acceso (usuario y contraseña)</div>
+      <label>¿Qué sucede si no responde?</label>
+      <div class="line">El usuario no podrá acceder al sistema. Se debe mostrar un mensaje de error y permitir
+        reintentos.</div>
 
-<p><strong>Interacción 2</strong></p>
-<label>Servicio que envía:</label>
-<div class="line">Servicio de Páginas Web</div>
-<label>Servicio que recibe:</label>
-<div class="line">Servicio de Inteligencia Artificial</div>
-<label>Información enviada:</label>
-<div class="line">Solicitud de generación automática de descripciones o contenido</div>
-<label>¿Qué sucede si no responde?</label>
-<div class="line">No se generarán descripciones automáticas. El usuario deberá crear el contenido manualmente. El sistema debe continuar funcionando sin la IA.</div>
+      <p><strong>Interacción 2</strong></p>
+      <label>Servicio que envía:</label>
+      <div class="line">Servicio de Páginas Web</div>
+      <label>Servicio que recibe:</label>
+      <div class="line">Servicio de Inteligencia Artificial</div>
+      <label>Información enviada:</label>
+      <div class="line">Solicitud de generación automática de descripciones o contenido</div>
+      <label>¿Qué sucede si no responde?</label>
+      <div class="line">No se generarán descripciones automáticas. El usuario deberá crear el contenido manualmente. El
+        sistema debe continuar funcionando sin la IA.</div>
 
-<p><strong>Interacción 3</strong></p>
-<label>Servicio que envía:</label>
-<div class="line">Servicio de Productos</div>
-<label>Servicio que recibe:</label>
-<div class="line">Servicio de Imágenes (Cloudinary)</div>
-<label>Información enviada:</label>
-<div class="line">Archivos de imágenes para productos</div>
-<label>¿Qué sucede si no responde?</label>
-<div class="line">No se podrán subir ni visualizar imágenes. El sistema debe mostrar un mensaje de error controlado y permitir continuar sin imágenes temporalmente.</div>
-</div>
+      <p><strong>Interacción 3</strong></p>
+      <label>Servicio que envía:</label>
+      <div class="line">Servicio de Productos</div>
+      <label>Servicio que recibe:</label>
+      <div class="line">Servicio de Imágenes (Cloudinary)</div>
+      <label>Información enviada:</label>
+      <div class="line">Archivos de imágenes para productos</div>
+      <label>¿Qué sucede si no responde?</label>
+      <div class="line">No se podrán subir ni visualizar imágenes. El sistema debe mostrar un mensaje de error
+        controlado y permitir continuar sin imágenes temporalmente.</div>
+    </div>
 
-<div class="section">
-<h2>🪜 2. REST o Eventos</h2>
+    <div class="section">
+      <h2>🪜 2. REST o Eventos</h2>
 
-<table>
-<tr>
-<th>Interacción</th>
-<th>REST</th>
-<th>Evento</th>
-<th>¿Por qué?</th>
-</tr>
-<tr>
-<td>Usuarios→  autenticacion</td>
-<td>✓</td>
-<td></td>
-<td>Requiere respuesta inmediata para validar credenciales y permitir acceso al sistema</td>
-</tr>
-<tr>
-<td>Paginas web→ Bases de Datos</td>
-<td>✓</td>
-<td></td>
-<td>Es una solicitud directa de contenido que requiere una respuesta específica</td>
-</tr>
-<tr>
-<td>Paginas web→IA/Imagenes</td>
-<td>✓</td>
-<td></td>
-<td>Es una operación de carga de archivos que requiere confirmación inmediata del almacenamiento</td>
-</tr>
-</table>
-</div>
+      <table>
+        <tr>
+          <th>Interacción</th>
+          <th>REST</th>
+          <th>Evento</th>
+          <th>¿Por qué?</th>
+        </tr>
+        <tr>
+          <td>Usuarios→ autenticacion</td>
+          <td>✓</td>
+          <td></td>
+          <td>Requiere respuesta inmediata para validar credenciales y permitir acceso al sistema</td>
+        </tr>
+        <tr>
+          <td>Paginas web→ Bases de Datos</td>
+          <td>✓</td>
+          <td></td>
+          <td>Es una solicitud directa de contenido que requiere una respuesta específica</td>
+        </tr>
+        <tr>
+          <td>Paginas web→IA/Imagenes</td>
+          <td>✓</td>
+          <td></td>
+          <td>Es una operación de carga de archivos que requiere confirmación inmediata del almacenamiento</td>
+        </tr>
+      </table>
+    </div>
 
-<div class="section">
-<h2>🪜 3. Síncrono o Asíncrono</h2>
+    <div class="section">
+      <h2>🪜 3. Síncrono o Asíncrono</h2>
 
-<table>
-<tr>
-<th>Interacción</th>
-<th>Síncrono</th>
-<th>Asíncrono</th>
-<th>Justificación</th>
-</tr>
-<tr>
-<td>autenticacion</td>
-<td>✓</td>
-<td></td>
-<td>El sistema debe esperar la respuesta de autenticación antes de permitir el acceso. Es crítico para la seguridad.</td>
-</tr>
-<tr>
-<td>Bases de Datos</td>
-<td></td>
-<td>✓</td>
-<td>La generación de contenido con IA puede tomar tiempo. El sistema puede continuar mientras procesa la respuesta en segundo plano.</td>
-</tr>
-<tr>
-<td>IA/Imagenes</td>
-<td>✓</td>
-<td></td>
-<td>Se necesita confirmar que la imagen se subió correctamente antes de continuar con la creación del producto.</td>
-</tr>
-</table>
-</div>
+      <table>
+        <tr>
+          <th>Interacción</th>
+          <th>Síncrono</th>
+          <th>Asíncrono</th>
+          <th>Justificación</th>
+        </tr>
+        <tr>
+          <td>autenticacion</td>
+          <td>✓</td>
+          <td></td>
+          <td>El sistema debe esperar la respuesta de autenticación antes de permitir el acceso. Es crítico para la
+            seguridad.</td>
+        </tr>
+        <tr>
+          <td>Bases de Datos</td>
+          <td></td>
+          <td>✓</td>
+          <td>La generación de contenido con IA puede tomar tiempo. El sistema puede continuar mientras procesa la
+            respuesta en segundo plano.</td>
+        </tr>
+        <tr>
+          <td>IA/Imagenes</td>
+          <td>✓</td>
+          <td></td>
+          <td>Se necesita confirmar que la imagen se subió correctamente antes de continuar con la creación del
+            producto.</td>
+        </tr>
+      </table>
+    </div>
 
-<div class="section">
-<h2>🪜 4. Eventos Importantes del Sistema</h2>
-1️⃣ <strong>Usuario registrado:</strong> Cuando un nuevo usuario crea su cuenta, se dispara un evento que permite inicializar su perfil y configurar su espacio de trabajo.<br><br>
-2️⃣ <strong>Página web publicada:</strong> Cuando un usuario publica su página web, se genera un evento que activa el despliegue en Vercel y notifica al sistema de páginas web.<br><br>
-3️⃣ <strong>Producto creado:</strong> Cuando se crea un nuevo producto, se dispara un evento que puede activar la generación automática de descripciones mediante el servicio de IA.
-</div>
+    <div class="section">
+      <h2>🪜 4. Eventos Importantes del Sistema</h2>
+      1️⃣ <strong>Usuario registrado:</strong> Cuando un nuevo usuario crea su cuenta, se dispara un evento que permite
+      inicializar su perfil y configurar su espacio de trabajo.<br><br>
+      2️⃣ <strong>Página web publicada:</strong> Cuando un usuario publica su página web, se genera un evento que activa
+      el despliegue en Vercel y notifica al sistema de páginas web.<br><br>
+      3️⃣ <strong>Producto creado:</strong> Cuando se crea un nuevo producto, se dispara un evento que puede activar la
+      generación automática de descripciones mediante el servicio de IA.
+    </div>
 
-<div class="section">
-<h2>🪜 5. Análisis de Fallos</h2>
-<label>Servicio más crítico:</label>
-<div class="line">Base de Datos (Supabase)</div>
-<label>¿Qué pasaría si falla?</label>
-<div class="line">No sería posible almacenar ni consultar información. Los usuarios no podrían crear páginas, gestionar productos, ni acceder a sus datos. El sistema perdería toda funcionalidad de persistencia.</div>
-<label>¿El sistema debe detenerse o continuar?</label>
-<div class="line">El sistema debe continuar con funcionalidades limitadas. Debe mostrar mensajes de error controlados y comprensibles, permitir operaciones de solo lectura si es posible, y mantener la interfaz disponible para cuando el servicio se recupere.</div>
-<label>¿Cómo podrían manejar este fallo?</label>
-<div class="line">Implementar mecanismos de reintento automático, realizar copias de seguridad periódicas de la base de datos, establecer monitoreo constante del sistema, y tener un sistema de caché temporal para operaciones críticas.</div>
-</div>
+    <div class="section">
+      <h2>🪜 5. Análisis de Fallos</h2>
+      <label>Servicio más crítico:</label>
+      <div class="line">Servicio de Orquestación de Páginas Web Nomo</div>
+      <label>¿Qué pasaría si falla?</label>
+      <div class="line">En un sistema distribuido, si falla el orquestador principal, se pierde el cumplimiento del
+        propósito de la aplicación. Aunque el usuario pueda ver su perfil o autenticarse, no podrá cumplir la función
+        vital de "Generar o Publicar Sitios", dejando al sistema sin su valor principal.</div>
+      <label>¿El sistema debe detenerse o continuar?</label>
+      <div class="line">El sistema debe continuar de forma degradada. Se deben permitir micro-tareas como edición de
+        contenido listo para ser guardado localmente o visualización de estadísticas, pero la publicación y generación
+        quedarán deshabilitadas hasta que el orquestador se recupere.</div>
+      <label>¿Cómo podrían manejar este fallo?</label>
+      <div class="line">Aplicar el patrón <i>Circuit Breaker</i> para evitar que otros servicios como el de IA sigan
+        enviando peticiones inútiles, usar colas de eventos (RabbitMQ) para encolar solicitudes de publicación y
+        procesarlas asincrónicamente cuando el servicio crítico retorne, y tener redundancia de nodos orquestadores.
+      </div>
+    </div>
 
-<div class="section">
-<h2>🪜 6. Service Discovery</h2>
-<label>¿Qué problema ocurre si cambia la IP de un servicio?</label>
-<div class="line">Los servicios que dependen de ese servicio dejarían de poder comunicarse con él, causando fallos en cascada. Tendríamos que actualizar manualmente todas las configuraciones en cada servicio que lo consume.</div>
-<label>¿Cómo sabría un servicio dónde encontrar otro?</label>
-<div class="line">Actualmente, los servicios están configurados con URLs fijas (Supabase, Cloudinary, Groq). Con Service Discovery, los servicios se registrarían automáticamente y otros servicios podrían encontrarlos dinámicamente mediante un registro centralizado.</div>
-<label>¿Por qué sería útil Service Discovery?</label>
-<div class="line">Permitiría escalar servicios independientemente, manejar fallos automáticamente redirigiendo a instancias saludables, y facilitar el despliegue de nuevas versiones sin interrumpir el servicio. Especialmente útil cuando se tienen múltiples instancias del mismo servicio.</div>
-<label>¿Dónde lo aplicarían en su sistema?</label>
-<div class="line">Sería útil para la comunicación entre el Servicio de Usuarios y el Servicio de Autenticación, entre el Servicio de Páginas Web y el Servicio de IA, y para gestionar múltiples instancias del Servicio de Productos cuando se necesite escalar.</div>
-</div>
+    <div class="section">
+      <h2>🪜 6. Service Discovery</h2>
+      <label>¿Qué problema ocurre si cambia la IP de un servicio?</label>
+      <div class="line">Los servicios que dependen de ese servicio dejarían de poder comunicarse con él, causando fallos
+        en cascada. Tendríamos que actualizar manualmente todas las configuraciones en cada servicio que lo consume.
+      </div>
+      <label>¿Cómo sabría un servicio dónde encontrar otro?</label>
+      <div class="line">Actualmente, los servicios están configurados con URLs fijas (Supabase, Cloudinary, Groq). Con
+        Service Discovery, los servicios se registrarían automáticamente y otros servicios podrían encontrarlos
+        dinámicamente mediante un registro centralizado.</div>
+      <label>¿Por qué sería útil Service Discovery?</label>
+      <div class="line">Permitiría escalar servicios independientemente, manejar fallos automáticamente redirigiendo a
+        instancias saludables, y facilitar el despliegue de nuevas versiones sin interrumpir el servicio. Especialmente
+        útil cuando se tienen múltiples instancias del mismo servicio.</div>
+      <label>¿Dónde lo aplicarían en su sistema?</label>
+      <div class="line">Sería útil para la comunicación entre el Servicio de Usuarios y el Servicio de Autenticación,
+        entre el Servicio de Páginas Web y el Servicio de IA, y para gestionar múltiples instancias del Servicio de
+        Productos cuando se necesite escalar.</div>
+    </div>
 
-<div class="section">
-<h2>🪜 7. Mini Diagrama</h2>
-<p>Dibujen:</p>
-<p><strong>Servicio A → Service Discovery → Servicio B</strong></p>
-</div>
+    <div class="section">
+      <h2>🪜 7. Mini Diagrama</h2>
+      <p>Dibujen:</p>
+      <p><strong>Servicio A → Service Discovery → Servicio B</strong></p>
+    </div>
 
-<div class="note">
-💡 <strong>Ayuda rápida</strong><br>
-REST → petición directa<br>
-Evento → algo ocurrió<br>
-Síncrono → espera respuesta<br>
-Asíncrono → continúa sin esperar<br>
-Service Discovery → permite encontrar servicios automáticamente
-</div>
+    <div class="note">
+      💡 <strong>Ayuda rápida</strong><br>
+      REST → petición directa<br>
+      Evento → algo ocurrió<br>
+      Síncrono → espera respuesta<br>
+      Asíncrono → continúa sin esperar<br>
+      Service Discovery → permite encontrar servicios automáticamente
+    </div>
 
-<div class="footer">
-🎤 El equipo debe poder explicar:<br>
-✔ una interacción importante<br>
-✔ un evento del sistema<br>
-✔ qué pasa si un servicio falla<br>
-✔ dónde usarían Service Discovery
-</div>
+    <div class="footer">
+      🎤 El equipo debe poder explicar:<br>
+      ✔ una interacción importante<br>
+      ✔ un evento del sistema<br>
+      ✔ qué pasa si un servicio falla<br>
+      ✔ dónde usarían Service Discovery
+    </div>
 
-</div>
+    <div class="section">
+      <h2>📊 Diagrama UML</h2>
+      <div class="mermaid">
+        graph TB
+        subgraph "Servicios Externos"
+        Cloudinary[Cloudinary - Almacenamiento Imágenes]
+        Supabase[(Supabase - Base de Datos)]
+        Vercel[Vercel - Despliegue]
+        Groq[Groq/IA - Generación de Contenido]
+        end
+
+        subgraph "Ecosistema Nomo (Microservicios)"
+        SD[<b>Service Discovery</b><br />Registro Central]
+        SU[Servicio de Usuarios]
+        SA[Servicio de Autenticación]
+        SPW[Servicio de Páginas Web]
+        SP[Servicio de Productos]
+        end
+
+        Usuario((Usuario)) --> SU
+        Usuario --> SPW
+        Usuario --> SP
+
+        %% Interacciones Basadas en el Documento
+        SU -- "REST / Síncrono<br />(Validar Credenciales)" --> SA
+        SPW -- "REST / Asíncrono<br />(Persistencia de Datos)" --> Supabase
+        SPW -- "REST / Síncrono<br />(Solicitud IA)" --> Groq
+        SP -- "REST / Síncrono<br />(Subida de Archivos)" --> Cloudinary
+
+        %% Service Discovery Flow
+        SU -.-> SD
+        SPW -.-> SD
+        SP -.-> SD
+        SD -.-> SA
+        SD -.-> Groq
+        SD -.-> Cloudinary
+
+        %% Eventos del Sistema
+        SU -. "Evento: Usuario Registrado" .-> Supabase
+        SPW -. "Evento: Página Publicada" .-> Vercel
+        SP -. "Evento: Producto Creado" .-> Groq
+
+        style SD fill:#f9f,stroke:#333,stroke-width:2px
+        style Supabase fill:#e1f5fe,stroke:#01579b
+        style Groq fill:#fff9c4,stroke:#fbc02d
+        style SA fill:#f1f8e9,stroke:#558b2f
+      </div>
+    </div>
+  </div>
 </body>
+
 </html>
