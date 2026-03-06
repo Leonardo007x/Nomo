@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mi cuenta - Nomo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      /* Paleta negra – tienda online */
+      /* #0a0a0a fondo • #141414 card • #ff6b35 CTA • #e85d04 hover */
+      /* #fafafa texto • #737373 mute */
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
+        background: #0a0a0a;
+        background-image:
+          radial-gradient(ellipse 80% 50% at 50% -20%, rgba(255, 107, 53, 0.08) 0%, transparent 70%),
+          radial-gradient(ellipse 60% 40% at 100% 100%, rgba(255, 107, 53, 0.04) 0%, transparent 70%);
+        color: #fafafa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        position: relative;
+      }
+
+      .card {
+        width: 400px;
+        max-width: 100%;
+        padding: 40px 36px;
+        border-radius: 20px;
+        background: linear-gradient(180deg, #1a1a1a 0%, #141414 100%);
+        border: 1px solid #262626;
+        box-shadow:
+          0 4px 6px rgba(0, 0, 0, 0.4),
+          0 20px 40px rgba(0, 0, 0, 0.3),
+          0 0 0 1px rgba(255, 255, 255, 0.03);
+        position: relative;
+        z-index: 1;
+        transition: box-shadow 0.3s ease, border-color 0.3s ease;
+      }
+
+      .card:hover {
+        border-color: #333;
+        box-shadow:
+          0 8px 24px rgba(0, 0, 0, 0.5),
+          0 0 0 1px rgba(255, 107, 53, 0.08);
+      }
+
+      .brand {
+        text-align: center;
+        margin-bottom: 28px;
+      }
+
+      .brand-icon {
+        width: 56px;
+        height: 56px;
+        margin: 0 auto 16px;
+        background: linear-gradient(135deg, #ff6b35 0%, #e85d04 100%);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        box-shadow: 0 8px 24px rgba(255, 107, 53, 0.35);
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
+        color: #fafafa;
+        letter-spacing: -0.02em;
+      }
+
+      .subtitle {
+        text-align: center;
+        font-size: 14px;
+        color: #737373;
+        margin-top: 6px;
+        margin-bottom: 28px;
+        line-height: 1.4;
+      }
+
+      label {
+        display: block;
+        margin-top: 18px;
+        margin-bottom: 8px;
+        font-size: 13px;
+        color: #fafafa;
+        font-weight: 600;
+      }
+
+      label:first-of-type {
+        margin-top: 0;
+      }
+
+      input {
+        width: 100%;
+        padding: 14px 16px;
+        border-radius: 12px;
+        border: 1px solid #333;
+        background: #0a0a0a;
+        color: #fafafa;
+        font-size: 15px;
+        font-family: inherit;
+        outline: none;
+        transition: all 0.2s ease;
+      }
+
+      input::placeholder {
+        color: #737373;
+      }
+
+      input:hover {
+        border-color: #404040;
+        background: #0d0d0d;
+      }
+
+      input:focus {
+        border-color: #ff6b35;
+        background: #0d0d0d;
+        box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.2);
+      }
+
+      button {
+        width: 100%;
+        margin-top: 24px;
+        padding: 14px 0;
+        border-radius: 12px;
+        border: none;
+        background: linear-gradient(135deg, #ff6b35 0%, #e85d04 100%);
+        color: #fff;
+        font-weight: 700;
+        font-size: 16px;
+        font-family: inherit;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 14px rgba(255, 107, 53, 0.4);
+      }
+
+      button:hover {
+        background: linear-gradient(135deg, #ff7d4d 0%, #e85d04 100%);
+        box-shadow: 0 6px 20px rgba(255, 107, 53, 0.5);
+        transform: translateY(-2px);
+      }
+
+      button:active {
+        transform: translateY(0);
+      }
+
+      .register-link {
+        display: block;
+        text-align: center;
+        margin-top: 20px;
+        font-size: 14px;
+        color: #737373;
+      }
+
+      .register-link a {
+        color: #ff6b35;
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+
+      .register-link a:hover {
+        color: #ff8c5a;
+        text-decoration: underline;
+      }
+
+      .trust {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        margin-top: 24px;
+        font-size: 12px;
+        color: #525252;
+      }
+
+      .trust svg {
+        flex-shrink: 0;
+      }
+
+      .status {
+        margin-top: 16px;
+        font-size: 14px;
+        min-height: 20px;
+      }
+
+      .status .ok {
+        color: #22c55e;
+        font-weight: 600;
+      }
+
+      .status .error {
+        color: #ef4444;
+        font-weight: 500;
+      }
+
+      .small {
+        margin-top: 24px;
+        padding-top: 20px;
+        border-top: 1px solid #262626;
+        font-size: 11px;
+        color: #525252;
+        line-height: 1.5;
+      }
+
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          monospace;
+        background: #0a0a0a;
+        color: #a3a3a3;
+        padding: 2px 6px;
+        border-radius: 4px;
+        border: 1px solid #333;
+        font-size: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true">🛒</div>
+        <h1>Bienvenido de nuevo</h1>
+        <p class="subtitle">Inicia sesión para ver tus pedidos y ofertas exclusivas</p>
+      </div>
+      <form id="login-form">
+        <label for="email">Correo electrónico</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          required
+          placeholder="tu@email.com"
+          value="demo@ejemplo.com"
+        />
+        <label for="password">Contraseña</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          required
+          placeholder="••••••••"
+          value="demo123"
+        />
+        <button type="submit">Entrar a mi cuenta</button>
+      </form>
+      <p class="register-link">¿Primera vez aquí? <a href="#">Crear cuenta</a></p>
+      <div class="trust" aria-hidden="true">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <span>Compra 100% segura</span>
+      </div>
+      <div class="status" id="status"></div>
+      <div class="small">
+        Conexión segura. Tus datos están protegidos.
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+  </html>
+

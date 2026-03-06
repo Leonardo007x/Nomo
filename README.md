@@ -1,210 +1,153 @@
-# Nomo  
+# Nomo
 
+## ¿Que problema resuelve el sistema?
 
-# ¿Qué problema resuelve el sistema?
+Muchos negocios pequeños no tienen una pagina web propia o dependen de herramientas genéricas donde no controlan bien su catálogo ni el menu para actualizarlo correctamente.  
+Nomo les da una presencia digital rápida, editable y “presentable”, donde pueden mostrar sus productos con plantillas y textos generados o asistidos por IA.
 
-Nomo soluciona el problema de las pequeñas y medianas empresas con ausencia de presencia digital. Muchas venden productos o servicios, pero carecen de las habilidades técnicas para crear un sitio web profesional.
+## ¿Quien lo usara?
+- **Admin de plataforma**  
+  Gestiona usuarios, límites de uso, monitoreo y configuración global.
 
-La plataforma permite a cualquier empresa crear y personalizar su propio sitio web utilizando plantillas prediseñadas, sin necesidad de conocimientos de programación.
+- **Dueño de negocio / creador de sitio**  
+  Crea y administra su página, sube productos, configura secciones y usa IA para textos.
 
----
+- **Cliente**  
+  Entra a la página visible publica del negocio, navega el catalogo y usa los enlaces de contacto definidos por el dueño.
 
-# ROLES DEL EQUIPO
+Cada rol tiene permisos distintos: el admin ve todo, el dueño solo su contenido y el visitante solo consume la página pública.
 
-- Líder del proyecto: Brayan Esmid Cruz Chate
-- Encargado de documentación: Jeison Guerra
-- Encargado técnico: Elkin Yesid Yandun
-- Encargado de presentación: Julián Leonardo Cerón
+## ¿Que pasaria si no existiera?
 
-# ¿Quién lo usará?
+Muchos terminarían o sin web, o pegados a un solo marketplace, o usando links improvisados tipo Canva/Wix sin control sobre los datos ni la experiencia.
 
-El sistema será utilizado por:
 
-- Emprendedores
-- Pequeñas empresas
-- Comercios locales
-- Personas que venden bienes o servicios.
+## Identificar los servicios
 
----
+- **Servicio de usuarios y autenticación**
+    Maneja registro/login, perfiles, planes y permisos de los dueños.
 
-# ¿Qué pasaría si no existiera?
+- **Servicio de proyectos/sitios**
+    Aquí va cada sitio creado en Nomo: nombre del negocio, URL, tema visual, configuración de secciones, etc.
 
-Si Nomo no existiera:
+-  **Servicio de productos/catálogo**
+    Lista de productos de cada negocio: nombre, precio, descripción, categoría, estado (activo/inactivo).
 
-- Muchas empresas no tendrian presencia en línea.
-- Necesitarian contratar a un desarrollador para crear su sitio web.
-- Perderian oportunidades de comercio electrónico.
-- El crecimiento seria más lento que el de las empresas que han digitalizado sus operaciones.
+- **Servicio de medios (Cloudinary)**
+    Todo lo de imágenes: subida, transformación y URL optimizadas para las páginas de los negocios.
 
----
+- **Servicio de IA (Groq)**
+    Generación de descripciones, textos para la página, ideas de contenido, quizá incluso propuesta de diseño o estructura básica.
 
-# IDENTIFICAR LOS SERVICIOS  
+- **Servicio de analíticas / métricas**
+    Visitas a los sitios, clics en productos, CTR de botones, etc., para que el dueño vea cómo se mueve su página.​
 
-## Funciones principales del sistema
+- **Opcional futuro: servicio de pagos/pedidos**
+    Si Nomo evoluciona de “solo presencia” a “mini e-commerce”, ahí entrarían pagos y pedidos.
 
-- Registro e inicio de sesión de usuarios  
-- Creación y edición de páginas web  
-- Creación con plantillas
-- Gestión de productos  
-- Subida y almacenamiento de imágenes  
-- Procesamiento de la información con inteligencia artificial
+## ¿Como se comunican?
 
----
+- Frontend (la app en Vercel) → solicita → Servicio de autenticación.
 
-## Servicios identificados
-
-Al dividir el sistema, identificamos los siguientes servicios:
-
-1. **Servicio de usuarios**
-   * Creación de cuentas
-   * Acceso al sistema
-   * Administración de perfiles
-
-2. **Servicio de autenticación**
-   * Verificación de credenciales
-   * Gestión de permisos de acceso
-
-3. **Servicio de páginas web**
-   * Desarrollo de sitios web
-   * Modificación de plantillas
-   * Puesta en línea
-
-4. **Servicio de productos**
-   * Agregar, modificar y eliminar artículos
-   * Vincular productos a un sitio web
-
-5. **Servicio de imágenes**
-   * Carga de imágenes en Cloudinary
-   * Administración de archivos multimedia
-
-6. **Servicio de inteligencia artificial**
-   * Creación automática de descripciones
-   * Soporte en la generación de contenido
-
----
-
-## ¿Qué partes pueden trabajar por separado?
-
-- El servicio de imágenes puede operar de forma autónoma.
-- La inteligencia artificial puede implementarse como un servicio externo.
-- La base de datos actúa como un servicio centralizado.
-- El frontend y el backend se encuentran desacoplados del almacenamiento multimedia.
-
----
-
-# ¿CÓMO SE COMUNICAN?  
-
-## Comunicación entre servicios
-
-Ejemplos dentro del sistema:
-
-- Usuarios → requiere → Servicio de Autenticación
-- Páginas Web → accede a → Base de Datos
-- Productos → obtiene información de → Base de Datos
-- Servicio de IA → provee respuesta a → Páginas Web
-- Imágenes → guarda archivos en → Cloudinary
-
-
----
-
-## Flujo general
-
-1. El usuario accede al sistema.
-2. El sistema verifica las credenciales ingresadas.
-3. El usuario genera una nueva página.
-4. La información se almacena en la base de datos.
-5. Si se cargan imágenes, estas se envían a Cloudinary.
-6. Si se requiere contenido, se realiza una consulta al servicio de IA.
-7. La página se despliega en Vercel.
-
-Cada servicio desempeña una tarea específica y se integra con los demás a través de solicitudes y respuestas.
-
----
-
-# PARTE 4 – ELEGIR LA ARQUITECTURA  
-
-☐ Cliente–Servidor  
-☐ Arquitectura en capas  
-☑ Microservicios  
-☐ Basados en eventos  
-☐ Híbrida  
-
----
-
-## Justificación de nuestra elección
-
-Elegimos una arquitectura de microservicios debido a que el sistema cuenta con múltiples funcionalidades independientes que pueden escalar de manera individual, tales como:
-
-- Autenticación
-- Administración de productos
-- Inteligencia artificial
-- Gestión de almacenamiento de imágenes
-
-Además, al estar implementado en Vercel y vinculado con servicios externos como Supabase, Groq y Cloudinary, el sistema opera como un conjunto de servicios distribuidos.
-
-Este enfoque arquitectónico permite:
-
-- Escalabilidad independiente
-- Mantenimiento más eficiente
-- Separación clara de responsabilidades
-- Mayor adaptabilidad y flexibilidad
-
----
-
-# BASE DE DATOS  
-
-## ¿Qué información debe guardarse?
-
-La base de datos debe encargarse de almacenar:
-
-- Datos de los usuarios
-- Información de autenticación
-- Detalles de los negocios
-- Configuraciones de las páginas web
-- Información de los productos
-- Enlaces (URLs) de las imágenes
-- Fechas de registro y última actualización
-
----
-
-## ¿Qué datos son más importantes?
-
-Los datos más importantes son:
-
-- Datos de identificación del usuario
-- Información correspondiente al negocio
-- Productos que han sido publicados
-- Ajustes y configuración de la página
-
-Si esta información se pierde, el negocio quedaría sin su presencia digital dentro de la plataforma.
-
-
----
-
-# FAllAS Y RIESGOS
-
-## ¿Quién usará el sistema?
-
-- Administrador
-- Cliente (propietario del negocio)
-- Visitante (persona que accede a la página pública del negocio)
-
-No todos cuentan con los mismos permisos:
-- El administrador tiene la capacidad de administrar la plataforma.
-- El cliente puede modificar y gestionar la información de su negocio.
-- El visitante únicamente puede visualizar la página pública.
-
----
-
-# FALLAS Y RIESGOS
-
-- Servicio de IA (Groq): no se generarían descripciones automáticas.
-  Base de datos (Supabase): no sería posible almacenar ni consultar información.
-- Servidor principal (Vercel): la aplicación dejaría de estar disponible.
-- Cloudinary: no se podrían subir ni visualizar imágenes.
+    Para login, registro, recuperación de sesión, etc.
+- Frontend → solicita → Servicio de proyectos/sitios.
   
-Posibles soluciones:
-- Implementar mecanismos de reintento automático.
-- Mostrar mensajes de error controlados y comprensibles para el usuario.
-- Realizar copias de seguridad periódicas de la base de datos.
-- Establecer monitoreo constante del sistema.
+    Para crear, listar y configurar las páginas de los negocios.
+
+- Proyectos/sitios → consulta → Servicio de productos.
+  
+    Cuando construyes la página pública, el sitio necesita saber qué productos mostrar, en qué orden, etc.
+
+- Frontend / Proyectos → usa → Servicio de medios (Cloudinary).
+  
+    Subes fotos desde la app y guardas solo las URLs/metadata en Supabase.
+
+- Frontend / Proyectos → llama → Servicio de IA (Groq).
+  
+    Envías contexto (tipo de negocio, productos) y recibes textos sugeridos para descripciones, encabezados, etc.
+
+- Analíticas ← recibe eventos de → Sitios públicos.
+  
+    Cada visita o clic se manda como evento para luego mostrar estadísticas al dueño.​
+
+## Tipo de arquitectura
+
+☑ Microservicios
+
+Elegimos esta arquitectura porque se puede separar IA, medios y analíticas como servicios más independientes perfecto para escalar ya que contara con muchos usuarios simultaneos y con tiendas que se pueden visitar de manera cotidiana ademas que se tiene pensado para un sistema grande.
+
+
+## Datos del sistema
+
+Datos que se guardan
+- Usuarios
+- Sitios Web / Proyectos
+- Productos
+- Configuracion
+- Analitica / Graficas
+
+Datos criticos
+- Usuarios
+- Sitios Web / Proyectos
+- Productos
+
+¿Una base para todos o varias?
+Como usamos supabase lo normal es usar una sola base de datos para todo y ya separalos con tablas para todo.
+
+
+## Usuarios del sistema
+
+- Admin de la plataforma (Admin)
+- Creador de sitios (Empresario)
+- Cliente
+
+¿Todos pueden hacer lo mismo?
+No:
+- Admin ve estadísticas globales, billing, moderación.
+- Dueño solo ve y gestiona sus propios sitios y productos.
+- Visitante solo consume, no toca el panel ni la configuración.
+
+## Fallas y Riesgos
+
+### Falla de Supabase (DB)
+
+**Impacto**  
+- No se pueden leer ni guardar sitios, productos ni usuarios.  
+- El panel deja de funcionar correctamente.  
+- Las páginas públicas fallan ya que son consultas en tiempo real.
+
+**Mitigación**  
+- Backups automáticos y probados.  
+- Manejo de errores y mensajes claros al usuario.
+
+### Falla de Cloudinary
+
+**Impacto**  
+- Las imágenes pueden no mostrarse o tardar demasiado.  
+
+**Mitigación**  
+- Placeholders por defecto cuando falle la carga.  
+
+### Falla del servicio de IA
+
+**Impacto**  
+- Los usuarios no pueden generar textos automáticamente, pero el resto del sistema sigue funcional.
+
+**Mitigación**  
+- Mostrar mensajes claros (“la IA no está disponible, escribe el texto manualmente”).  
+- Reintentar algunas solicitudes y registrar errores para revisión.
+
+### Falla del despliegue / servidor (Vercel)
+
+**Impacto**  
+- El panel de administración puede no estar disponible.  
+- Las páginas públicas se ven afectadas y no cargan.
+
+**Mitigación**  
+- Mantener las páginas públicas lo más estáticas posible.  
+- Monitoreo del estado de despliegues.  
+
+
+
+
+
