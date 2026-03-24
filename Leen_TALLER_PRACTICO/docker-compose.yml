@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+  web:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    depends_on:
+      - api
+
+  api:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    environment:
+      - MYSQL_HOST=base-datos
+      - MYSQL_USER=leen_user
+      - MYSQL_PASSWORD=leen_password
+      - MYSQL_DATABASE=leen_db
+    depends_on:
+      - base-datos
+
+  base-datos:
+    image: mysql:8.0
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_DATABASE=leen_db
+      - MYSQL_USER=leen_user
+      - MYSQL_PASSWORD=leen_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - datos-mysql:/var/lib/mysql
+      - ./base-datos/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+volumes:
+  datos-mysql:
