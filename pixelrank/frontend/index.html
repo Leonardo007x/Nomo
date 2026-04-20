@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PixelRank</title>
+  <style>
+    :root {
+      --bg:      #0e0e0e;
+      --surface: #1a1a1a;
+      --card:    #212121;
+      --accent:  #f97316;
+      --accent2: #fb923c;
+      --good:    #22c55e;
+      --text:    #e5e5e5;
+      --muted:   #737373;
+      --border:  #2a2a2a;
+      --radius:  12px;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1.2rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .logo { font-size: 1.8rem; font-weight: 800; color: var(--accent); letter-spacing: -1px; }
+    .logo span { color: var(--text); }
+    .tagline { color: var(--muted); font-size: 0.85rem; }
+    .conexion {
+      margin-left: auto;
+      display: flex;
+      gap: 0.6rem;
+      font-size: 0.78rem;
+    }
+    .chip {
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      background: var(--border);
+      color: var(--muted);
+      display: flex; align-items: center; gap: 0.35rem;
+    }
+    .chip.ok  { background: rgba(34,197,94,.15);  color: var(--good); }
+    .chip.err { background: rgba(249,115,22,.15); color: var(--accent); }
+
+    /* ── STATS BAR ── */
+    .stats-bar {
+      display: flex;
+      gap: 1rem;
+      padding: 1.2rem 2rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .stat {
+      display: flex; flex-direction: column;
+      align-items: center;
+      min-width: 80px;
+    }
+    .stat-val { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+    .stat-lbl { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+
+    /* ── MAIN ── */
+    main { padding: 1.5rem 2rem; }
+
+    /* ── CONTROLES ── */
+    .controles {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    #buscador {
+      flex: 1; min-width: 180px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.6rem 1rem;
+      color: var(--text);
+      font-size: 0.9rem;
+      outline: none;
+    }
+    #buscador:focus { border-color: var(--accent); }
+    .filtros { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .filtro-btn {
+      padding: 0.45rem 1rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .filtro-btn:hover, .filtro-btn.activo {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    /* ── GRID ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+
+    /* ── TARJETA ── */
+    .tarjeta {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      transition: transform .2s, border-color .2s;
+    }
+    .tarjeta:hover { transform: translateY(-3px); border-color: var(--accent); }
+    .tarjeta-top { display: flex; justify-content: space-between; align-items: flex-start; gap: .5rem; }
+    .tarjeta h3  { font-size: 1rem; line-height: 1.3; flex:1; }
+    .score {
+      font-size: 1.2rem; font-weight: 800; color: var(--accent);
+      background: rgba(249,115,22,.12);
+      border-radius: 8px;
+      padding: 0.2rem 0.5rem;
+      white-space: nowrap;
+    }
+    .score.top { color: var(--good); background: rgba(34,197,94,.12); }
+    .dev   { font-size: 0.82rem; color: var(--muted); }
+    .meta  { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.2rem; }
+    .badge {
+      font-size: 0.72rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      background: rgba(249,115,22,.15);
+      color: var(--accent2);
+    }
+    .badge.anio { background: var(--border); color: var(--muted); }
+
+    /* ── VACÍO / ERROR ── */
+    .vacio {
+      grid-column: 1/-1;
+      text-align: center;
+      padding: 3rem;
+      color: var(--muted);
+    }
+
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      color: var(--muted);
+      font-size: 0.8rem;
+      border-top: 1px solid var(--border);
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">Pixel<span>Rank</span></div>
+    <div class="tagline">Catálogo y valoración de videojuegos</div>
+  </div>
+  <div class="conexion">
+    <div id="chip-api" class="chip">⏳ API</div>
+    <div id="chip-bd"  class="chip">⏳ BD</div>
+  </div>
+</header>
+
+<div class="stats-bar">
+  <div class="stat"><span class="stat-val" id="s-total">—</span><span class="stat-lbl">juegos</span></div>
+  <div class="stat"><span class="stat-val" id="s-prom">—</span><span class="stat-lbl">promedio</span></div>
+  <div class="stat"><span class="stat-val" id="s-max">—</span><span class="stat-lbl">puntuación máx.</span></div>
+  <div class="stat"><span class="stat-val" id="s-gen">—</span><span class="stat-lbl">géneros</span></div>
+</div>
+
+<main>
+  <div class="controles">
+    <input id="buscador" type="text" placeholder="🔍  Buscar juego o desarrollador…" oninput="filtrarUI()" />
+    <div class="filtros" id="filtros">
+      <button class="filtro-btn activo" data-genero="">Todos</button>
+    </div>
+  </div>
+  <div class="grid" id="grid"><p class="vacio">Cargando catálogo…</p></div>
+</main>
+
+<footer>Sistema distribuido · Docker Compose · PixelRank</footer>
+
+<script>
+  const API = 'http://localhost:5000';
+  let todosLosJuegos = [];
+
+  function esc(t) {
+    const d = document.createElement('div');
+    d.textContent = t; return d.innerHTML;
+  }
+
+  // --- Estado chips ---
+  function setChip(id, ok, txt) {
+    const el = document.getElementById(id);
+    el.className = 'chip ' + (ok ? 'ok' : 'err');
+    el.textContent = (ok ? '✓ ' : '✗ ') + txt;
+  }
+
+  // --- Stats ---
+  fetch(API + '/api/stats')
+    .then(r => r.json())
+    .then(d => {
+      document.getElementById('s-total').textContent = d.total ?? '—';
+      document.getElementById('s-prom').textContent  = d.promedio ?? '—';
+      document.getElementById('s-max').textContent   = d.maxima ?? '—';
+      document.getElementById('s-gen').textContent   = d.generos ?? '—';
+    });
+
+  // --- Ping API ---
+  fetch(API + '/api/ping')
+    .then(r => r.json())
+    .then(() => setChip('chip-api', true, 'API activa'))
+    .catch(() => setChip('chip-api', false, 'API caída'));
+
+  // --- Géneros (filtros dinámicos) ---
+  fetch(API + '/api/generos')
+    .then(r => r.json())
+    .then(d => {
+      const cont = document.getElementById('filtros');
+      (d.generos || []).forEach(g => {
+        const btn = document.createElement('button');
+        btn.className = 'filtro-btn';
+        btn.dataset.genero = g;
+        btn.textContent = g;
+        btn.onclick = () => activarFiltro(g, btn);
+        cont.appendChild(btn);
+      });
+    });
+
+  // --- Catálogo completo ---
+  fetch(API + '/api/juegos')
+    .then(r => r.json())
+    .then(d => {
+      if (d.error) {
+        setChip('chip-bd', false, 'BD caída');
+        document.getElementById('grid').innerHTML = '<p class="vacio">No se pudo conectar a la base de datos.</p>';
+        return;
+      }
+      setChip('chip-bd', true, 'BD conectada');
+      todosLosJuegos = d.juegos || [];
+      renderizar(todosLosJuegos);
+    })
+    .catch(() => {
+      setChip('chip-bd', false, 'Error');
+      document.getElementById('grid').innerHTML = '<p class="vacio">Error al cargar el catálogo.</p>';
+    });
+
+  // --- Render tarjetas ---
+  function renderizar(lista) {
+    const grid = document.getElementById('grid');
+    if (!lista.length) {
+      grid.innerHTML = '<p class="vacio">No se encontraron juegos.</p>';
+      return;
+    }
+    grid.innerHTML = lista.map(j => {
+      const esTop = parseFloat(j.puntuacion) >= 9.3;
+      return `
+        <div class="tarjeta">
+          <div class="tarjeta-top">
+            <h3>${esc(j.titulo)}</h3>
+            <span class="score${esTop ? ' top' : ''}">${j.puntuacion}</span>
+          </div>
+          <div class="dev">${esc(j.desarrollador)}</div>
+          <div class="meta">
+            <span class="badge">${esc(j.genero)}</span>
+            <span class="badge anio">${j.anio}</span>
+            ${esTop ? '<span class="badge" style="background:rgba(34,197,94,.15);color:#22c55e">★ Top</span>' : ''}
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // --- Filtro por género (botones) ---
+  let generoActivo = '';
+  function activarFiltro(genero, btn) {
+    generoActivo = genero;
+    document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('activo'));
+    btn.classList.add('activo');
+    filtrarUI();
+  }
+  document.querySelector('.filtro-btn').onclick = function() {
+    generoActivo = '';
+    document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('activo'));
+    this.classList.add('activo');
+    filtrarUI();
+  };
+
+  // --- Filtro por búsqueda ---
+  function filtrarUI() {
+    const q = document.getElementById('buscador').value.toLowerCase();
+    let lista = todosLosJuegos;
+    if (generoActivo) lista = lista.filter(j => j.genero === generoActivo);
+    if (q) lista = lista.filter(j =>
+      j.titulo.toLowerCase().includes(q) ||
+      j.desarrollador.toLowerCase().includes(q)
+    );
+    renderizar(lista);
+  }
+</script>
+</body>
+</html>
