@@ -1,0 +1,155 @@
+
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mercado Liebre - E-commerce Builder</title>
+    <!-- Favicon: Rabbit (Yellow Primary #FFE600) -->
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFE600' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M13 16a3 3 0 0 1 2.24 5'/%3E%3Cpath d='M18 12h.01'/%3E%3Cpath d='M18 21h-8a4 4 0 0 1-4-4 7 7 0 0 1 7-7h.2L9.6 6.4a1 1 0 1 1 2.8-2.8L15.8 7h.2c3.3 0 6 2.7 6 6v1a2 2 0 0 1-2 2h-1a2 2 0 0 0-2 2z'/%3E%3Cpath d='M20 8.54V4a2 2 0 1 0-4 0v3'/%3E%3Cpath d='M7.612 12.524a3 3 0 1 0-1.6 4.3'/%3E%3C/svg%3E" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+              serif: ['Playfair Display', 'serif'],
+            },
+            colors: {
+              bg: 'var(--bg-color)',
+              surface: 'var(--surface-color)',
+              primary: 'var(--primary-color)',
+              secondary: 'var(--secondary-color)',
+              accent: 'var(--accent-color)',
+              meli: {
+                yellow: '#FFE600',
+                blue: '#3483FA',
+                dark: '#2D3277',
+                light: '#EBEBEB'
+              },
+              text: {
+                main: 'var(--text-main)',
+                muted: 'var(--text-muted)'
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      :root {
+        /* --- MODE CLARO: ESTILO MERCADO LIBRE --- */
+        --bg-color: #F5F5F7;
+        --surface-color: #FFFFFF;
+        --primary-color: #3483FA;   /* Azul oficial para botones */
+        --secondary-color: #FFE600; /* Amarillo oficial para cabecera */
+        --accent-color: #2D3277;    /* Azul oscuro para títulos */
+        
+        --text-main: #333333; 
+        --text-muted: #666666; 
+        
+        --border-color: #E6E6E6;
+        --border: 1px solid var(--border-color);
+        
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      }
+
+      .dark {
+        /* --- MODO OSCURO: TONOS AMARILLOS/ÁMBAR (SIN AZUL) --- */
+        --bg-color: #0F0F0F; 
+        --surface-color: #1A1A1A;
+        --primary-color: #FFE600;   /* Amarillo meli */
+        --secondary-color: #FFC000;
+        --accent-color: #FFB000;
+        
+        --text-main: #F5F5F5; 
+        --text-muted: #A0A0A0; 
+        
+        --border-color: #333333;
+        --border: 1px solid var(--border-color);
+        
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+      }
+      
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1), color 0.5s ease;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      
+      /* --- CLASES DE UTILIDAD --- */
+      .border-border { border-color: var(--border-color); }
+      .bg-bg { background-color: var(--bg-color); }
+      .bg-surface { background-color: var(--surface-color); }
+      .text-text-main { color: var(--text-main); }
+      .text-text-muted { color: var(--text-muted); }
+      
+      .btn-primary {
+        background-color: var(--primary-color) !important;
+        color: #FFFFFF !important;
+        transition: opacity 0.2s ease;
+      }
+      .btn-primary:hover { opacity: 0.9; }
+      
+      .dark .btn-primary {
+        color: #000000 !important;
+      }
+      
+      .btn-secondary {
+        background-color: rgba(52, 131, 250, 0.1) !important;
+        color: var(--primary-color) !important;
+        transition: background-color 0.2s ease;
+      }
+      .btn-secondary:hover { background-color: rgba(52, 131, 250, 0.15) !important; }
+      
+      .dark .btn-secondary {
+        background-color: rgba(255, 230, 0, 0.1) !important;
+        color: #FFE600 !important;
+      }
+      .dark .btn-secondary:hover { background-color: rgba(255, 230, 0, 0.15) !important; }
+
+      ::-webkit-scrollbar { width: 10px; }
+      ::-webkit-scrollbar-track { background: var(--bg-color); }
+      ::-webkit-scrollbar-thumb { background-color: var(--shadow-dark); border-radius: 10px; border: 3px solid var(--bg-color); }
+      
+      @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+      .animate-fadeIn { animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+      @keyframes slideIn { from { transform: translateX(30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+      .animate-slideIn { animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+      @keyframes flipIn { from { transform: rotateY(90deg); opacity: 0; } to { transform: rotateY(0); opacity: 1; } }
+      .animate-flipIn { animation: flipIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
+    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.6",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
+    "zustand": "https://aistudiocdn.com/zustand@^5.0.0",
+    "react-hook-form": "https://esm.sh/react-hook-form@7.51.3?external=react,react-dom",
+    "zod": "https://esm.sh/zod@3.22.4",
+    "@hookform/resolvers/zod": "https://esm.sh/@hookform/resolvers@3.3.4/zod?external=react,react-dom",
+    "react-helmet-async": "https://esm.sh/react-helmet-async@2.0.4?external=react,react-dom",
+    "@hookform/resolvers/": "https://aistudiocdn.com/@hookform/resolvers@^5.2.2/",
+    "framer-motion": "https://esm.sh/framer-motion@11?external=react,react-dom"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
