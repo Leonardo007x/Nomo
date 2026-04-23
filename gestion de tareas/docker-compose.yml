@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  database:
+    image: mongo:6-jammy
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  backend:
+    image: node:18-alpine
+    working_dir: /app
+    # Montamos el código local en el contenedor para no necesitar un Dockerfile
+    volumes:
+      - ./backend:/app
+    # Instalamos las dependencias locales y arrancamos el servidor
+    command: sh -c "npm install && node app.js"
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - MONGO_URI=mongodb://database:27017/taskapp
+    depends_on:
+      - database
+
+  frontend:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    # Montamos la carpeta del frontend en el directorio que Nginx usa para servir estáticos
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    depends_on:
+      - backend
+
+volumes:
+  mongo_data:
