@@ -1,153 +1,175 @@
-# Nomo
+# Mercado Liebre
 
-## ¿Que problema resuelve el sistema?
+Mercado Liebre es una plataforma para que pequeños negocios publiquen y administren su catalogo digital de forma rapida, con gestion de tienda, productos y configuracion visual.
 
-Muchos negocios pequeños no tienen una pagina web propia o dependen de herramientas genéricas donde no controlan bien su catálogo ni el menu para actualizarlo correctamente.  
-Nomo les da una presencia digital rápida, editable y “presentable”, donde pueden mostrar sus productos con plantillas y textos generados o asistidos por IA.
+El proyecto implementa una arquitectura de servicios desplegada con Docker Compose, integrada por frontend, API backend y base de datos MySQL.
 
-## ¿Quien lo usara?
-- **Admin de plataforma**  
-  Gestiona usuarios, límites de uso, monitoreo y configuración global.
+## Problema que resuelve
 
-- **Dueño de negocio / creador de sitio**  
-  Crea y administra su página, sube productos, configura secciones y usa IA para textos.
+Muchos negocios pequenos:
+- no cuentan con un sitio propio,
+- dependen de herramientas genericas con poco control,
+- y tienen dificultad para mantener su catalogo actualizado.
 
-- **Cliente**  
-  Entra a la página visible publica del negocio, navega el catalogo y usa los enlaces de contacto definidos por el dueño.
-
-Cada rol tiene permisos distintos: el admin ve todo, el dueño solo su contenido y el visitante solo consume la página pública.
-
-## ¿Que pasaria si no existiera?
-
-Muchos terminarían o sin web, o pegados a un solo marketplace, o usando links improvisados tipo Canva/Wix sin control sobre los datos ni la experiencia.
-
-
-## Identificar los servicios
-
-- **Servicio de usuarios y autenticación**
-    Maneja registro/login, perfiles, planes y permisos de los dueños.
-
-- **Servicio de proyectos/sitios**
-    Aquí va cada sitio creado en Nomo: nombre del negocio, URL, tema visual, configuración de secciones, etc.
-
--  **Servicio de productos/catálogo**
-    Lista de productos de cada negocio: nombre, precio, descripción, categoría, estado (activo/inactivo).
-
-- **Servicio de medios (Cloudinary)**
-    Todo lo de imágenes: subida, transformación y URL optimizadas para las páginas de los negocios.
-
-- **Servicio de IA (Groq)**
-    Generación de descripciones, textos para la página, ideas de contenido, quizá incluso propuesta de diseño o estructura básica.
-
-- **Servicio de analíticas / métricas**
-    Visitas a los sitios, clics en productos, CTR de botones, etc., para que el dueño vea cómo se mueve su página.​
-
-- **Opcional futuro: servicio de pagos/pedidos**
-    Si Nomo evoluciona de “solo presencia” a “mini e-commerce”, ahí entrarían pagos y pedidos.
-
-## ¿Como se comunican?
-
-- Frontend (la app en Vercel) → solicita → Servicio de autenticación.
-
-    Para login, registro, recuperación de sesión, etc.
-- Frontend → solicita → Servicio de proyectos/sitios.
-  
-    Para crear, listar y configurar las páginas de los negocios.
-
-- Proyectos/sitios → consulta → Servicio de productos.
-  
-    Cuando construyes la página pública, el sitio necesita saber qué productos mostrar, en qué orden, etc.
-
-- Frontend / Proyectos → usa → Servicio de medios (Cloudinary).
-  
-    Subes fotos desde la app y guardas solo las URLs/metadata en Supabase.
-
-- Frontend / Proyectos → llama → Servicio de IA (Groq).
-  
-    Envías contexto (tipo de negocio, productos) y recibes textos sugeridos para descripciones, encabezados, etc.
-
-- Analíticas ← recibe eventos de → Sitios públicos.
-  
-    Cada visita o clic se manda como evento para luego mostrar estadísticas al dueño.​
-
-## Tipo de arquitectura
-
-☑ Microservicios
-
-Elegimos esta arquitectura porque se puede separar IA, medios y analíticas como servicios más independientes perfecto para escalar ya que contara con muchos usuarios simultaneos y con tiendas que se pueden visitar de manera cotidiana ademas que se tiene pensado para un sistema grande.
-
-
-## Datos del sistema
-
-Datos que se guardan
-- Usuarios
-- Sitios Web / Proyectos
-- Productos
-- Configuracion
-- Analitica / Graficas
-
-Datos criticos
-- Usuarios
-- Sitios Web / Proyectos
-- Productos
-
-¿Una base para todos o varias?
-Como usamos supabase lo normal es usar una sola base de datos para todo y ya separalos con tablas para todo.
-
+Mercado Liebre centraliza la administracion de tienda y productos, y expone una vista publica consumible por clientes.
 
 ## Usuarios del sistema
 
-- Admin de la plataforma (Admin)
-- Creador de sitios (Empresario)
-- Cliente
+- **Administrador de plataforma**: gestiona la operacion global.
+- **Dueno de negocio**: crea y administra su tienda, productos y configuracion.
+- **Cliente/visitante**: navega el catalogo publico.
 
-¿Todos pueden hacer lo mismo?
-No:
-- Admin ve estadísticas globales, billing, moderación.
-- Dueño solo ve y gestiona sus propios sitios y productos.
-- Visitante solo consume, no toca el panel ni la configuración.
+## Arquitectura implementada (actual)
 
-## Fallas y Riesgos
+La solucion actual esta desplegada con Docker Compose y utiliza estos componentes:
 
-### Falla de Supabase (DB)
+- **Frontend**: aplicacion React/Vite servida con Nginx.
+- **API**: servicio Node.js + Express (`api-service`).
+- **Base de datos**: MySQL 8 (`db-service`).
+- **Media externa (opcional)**: Cloudinary para subida de imagenes.
 
-**Impacto**  
-- No se pueden leer ni guardar sitios, productos ni usuarios.  
-- El panel deja de funcionar correctamente.  
-- Las páginas públicas fallan ya que son consultas en tiempo real.
+Flujo principal:
 
-**Mitigación**  
-- Backups automáticos y probados.  
-- Manejo de errores y mensajes claros al usuario.
+1. El usuario accede al frontend en `http://localhost:8080`.
+2. Nginx enruta `/api/*` hacia `api-service:3000`.
+3. La API consulta/persiste datos en MySQL.
+4. Para imagenes, la API usa Cloudinary cuando esta configurado.
 
-### Falla de Cloudinary
+## Servicios existentes
 
-**Impacto**  
-- Las imágenes pueden no mostrarse o tardar demasiado.  
+### 1) Servicio de autenticacion y usuarios
 
-**Mitigación**  
-- Placeholders por defecto cuando falle la carga.  
+Implementado dentro de `servicio-api/server.js`:
+- registro y login,
+- validacion JWT,
+- consulta de sesion actual (`/api/auth/me`).
 
-### Falla del servicio de IA
+### 2) Servicio de tiendas y configuracion
 
-**Impacto**  
-- Los usuarios no pueden generar textos automáticamente, pero el resto del sistema sigue funcional.
+Implementado en la API:
+- creacion y actualizacion de tiendas,
+- consulta publica/privada de tienda,
+- temas visuales asociados.
 
-**Mitigación**  
-- Mostrar mensajes claros (“la IA no está disponible, escribe el texto manualmente”).  
-- Reintentar algunas solicitudes y registrar errores para revisión.
+### 3) Servicio de productos y categorias
 
-### Falla del despliegue / servidor (Vercel)
+Implementado en la API:
+- alta, consulta, actualizacion y eliminacion de productos,
+- consulta de categorias por tienda.
 
-**Impacto**  
-- El panel de administración puede no estar disponible.  
-- Las páginas públicas se ven afectadas y no cargan.
+### 4) Servicio de medios
 
-**Mitigación**  
-- Mantener las páginas públicas lo más estáticas posible.  
-- Monitoreo del estado de despliegues.  
+Implementado en la API:
+- endpoint de subida `POST /api/media/upload`,
+- integracion con Cloudinary por variables de entorno.
 
+### 5) Analitica e IA
 
+En el estado actual del backend no existe un microservicio independiente de analitica ni de IA en produccion dentro de Docker Compose.
 
+## Endpoints implementados
 
+### Diagnostico
+- `GET /api/health`
 
+### Autenticacion
+- `POST /api/auth/register`
+- `POST /api/registro` (alias)
+- `POST /api/auth/login`
+- `POST /api/login` (alias)
+- `GET /api/auth/me`
+
+### Tiendas
+- `GET /api/tiendas`
+- `GET /api/tiendas/destacadas`
+- `GET /api/tiendas/mias`
+- `GET /api/tiendas/:id`
+- `GET /api/tiendas/:id/vista-publica`
+- `POST /api/tiendas`
+- `PATCH /api/tiendas/:id`
+
+### Temas
+- `GET /api/temas`
+- `POST /api/temas`
+- `PATCH /api/temas/:id`
+
+### Categorias
+- `GET /api/categorias`
+
+### Productos
+- `GET /api/productos`
+- `POST /api/productos`
+- `PATCH /api/productos/:id`
+- `DELETE /api/productos/:id`
+
+### Media
+- `POST /api/media/upload`
+
+## Archivos Docker a presentar
+
+- `docker-compose.yml`: orquestacion de servicios, red y volumen.
+- `Dockerfile`: build del frontend y despliegue en Nginx.
+- `nginx.conf`: proxy inverso de `/api` a `api-service`.
+- `servicio-api/Dockerfile`: contenedor del backend.
+- `.dockerignore`: exclusiones de build.
+- `init-db/init.sql`: esquema/seed inicial de MySQL.
+- `.env`: variables de entorno (sin exponer secretos en la presentacion).
+
+## Datos del sistema
+
+Datos principales:
+- usuarios,
+- tiendas,
+- temas,
+- productos,
+- categorias.
+
+Datos criticos:
+- usuarios (autenticacion),
+- tiendas,
+- productos.
+
+## Riesgos y mitigacion
+
+### Caida de MySQL
+**Impacto:** no se pueden leer ni persistir datos de negocio.  
+**Mitigacion:** volumen persistente, respaldos periodicos y manejo de errores en API.
+
+### Caida de Cloudinary
+**Impacto:** falla la subida/visualizacion de imagenes externas.  
+**Mitigacion:** validacion de configuracion, respuestas controladas y uso de imagenes por defecto.
+
+### Caida del backend API
+**Impacto:** el frontend no puede operar sobre datos dinamicos.  
+**Mitigacion:** `restart` en Compose, endpoint de health y monitoreo.
+
+## Ejecucion local con Docker
+
+### Requisitos
+- Docker
+- Docker Compose
+
+### Pasos
+
+1. Configurar variables en `.env` (si aplica).
+2. Levantar servicios:
+
+```bash
+docker compose up --build
+```
+
+3. Abrir:
+   - Frontend: `http://localhost:8080`
+   - API health: `http://localhost:8080/api/health`
+
+## Pruebas de API con Postman
+
+La coleccion de endpoints se encuentra en:
+
+- `postman/Mercado_Liebre_API.postman_collection.json`
+
+Recomendacion para demo:
+1. `GET /api/health`
+2. registro/login para obtener token
+3. flujo de tienda
+4. flujo CRUD de productos
