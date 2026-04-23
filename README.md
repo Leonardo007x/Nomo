@@ -1,210 +1,175 @@
-# Nomo  
+# Mercado Liebre
 
+Mercado Liebre es una plataforma para que pequeños negocios publiquen y administren su catalogo digital de forma rapida, con gestion de tienda, productos y configuracion visual.
 
-# ¿Qué problema resuelve el sistema?
+El proyecto implementa una arquitectura de servicios desplegada con Docker Compose, integrada por frontend, API backend y base de datos MySQL.
 
-Nomo soluciona el problema de las pequeñas y medianas empresas con ausencia de presencia digital. Muchas venden productos o servicios, pero carecen de las habilidades técnicas para crear un sitio web profesional.
+## Problema que resuelve
 
-La plataforma permite a cualquier empresa crear y personalizar su propio sitio web utilizando plantillas prediseñadas, sin necesidad de conocimientos de programación.
+Muchos negocios pequenos:
+- no cuentan con un sitio propio,
+- dependen de herramientas genericas con poco control,
+- y tienen dificultad para mantener su catalogo actualizado.
 
----
+Mercado Liebre centraliza la administracion de tienda y productos, y expone una vista publica consumible por clientes.
 
-# ROLES DEL EQUIPO
+## Usuarios del sistema
 
-- Líder del proyecto: Brayan Esmid Cruz Chate
-- Encargado de documentación: Jeison Guerra
-- Encargado técnico: Elkin Yesid Yandun
-- Encargado de presentación: Julián Leonardo Cerón
+- **Administrador de plataforma**: gestiona la operacion global.
+- **Dueno de negocio**: crea y administra su tienda, productos y configuracion.
+- **Cliente/visitante**: navega el catalogo publico.
 
-# ¿Quién lo usará?
+## Arquitectura implementada (actual)
 
-El sistema será utilizado por:
+La solucion actual esta desplegada con Docker Compose y utiliza estos componentes:
 
-- Emprendedores
-- Pequeñas empresas
-- Comercios locales
-- Personas que venden bienes o servicios.
+- **Frontend**: aplicacion React/Vite servida con Nginx.
+- **API**: servicio Node.js + Express (`api-service`).
+- **Base de datos**: MySQL 8 (`db-service`).
+- **Media externa (opcional)**: Cloudinary para subida de imagenes.
 
----
+Flujo principal:
 
-# ¿Qué pasaría si no existiera?
+1. El usuario accede al frontend en `http://localhost:8080`.
+2. Nginx enruta `/api/*` hacia `api-service:3000`.
+3. La API consulta/persiste datos en MySQL.
+4. Para imagenes, la API usa Cloudinary cuando esta configurado.
 
-Si Nomo no existiera:
+## Servicios existentes
 
-- Muchas empresas no tendrian presencia en línea.
-- Necesitarian contratar a un desarrollador para crear su sitio web.
-- Perderian oportunidades de comercio electrónico.
-- El crecimiento seria más lento que el de las empresas que han digitalizado sus operaciones.
+### 1) Servicio de autenticacion y usuarios
 
----
+Implementado dentro de `servicio-api/server.js`:
+- registro y login,
+- validacion JWT,
+- consulta de sesion actual (`/api/auth/me`).
 
-# IDENTIFICAR LOS SERVICIOS  
+### 2) Servicio de tiendas y configuracion
 
-## Funciones principales del sistema
+Implementado en la API:
+- creacion y actualizacion de tiendas,
+- consulta publica/privada de tienda,
+- temas visuales asociados.
 
-- Registro e inicio de sesión de usuarios  
-- Creación y edición de páginas web  
-- Creación con plantillas
-- Gestión de productos  
-- Subida y almacenamiento de imágenes  
-- Procesamiento de la información con inteligencia artificial
+### 3) Servicio de productos y categorias
 
----
+Implementado en la API:
+- alta, consulta, actualizacion y eliminacion de productos,
+- consulta de categorias por tienda.
 
-## Servicios identificados
+### 4) Servicio de medios
 
-Al dividir el sistema, identificamos los siguientes servicios:
+Implementado en la API:
+- endpoint de subida `POST /api/media/upload`,
+- integracion con Cloudinary por variables de entorno.
 
-1. **Servicio de usuarios**
-   * Creación de cuentas
-   * Acceso al sistema
-   * Administración de perfiles
+### 5) Analitica e IA
 
-2. **Servicio de autenticación**
-   * Verificación de credenciales
-   * Gestión de permisos de acceso
+En el estado actual del backend no existe un microservicio independiente de analitica ni de IA en produccion dentro de Docker Compose.
 
-3. **Servicio de páginas web**
-   * Desarrollo de sitios web
-   * Modificación de plantillas
-   * Puesta en línea
+## Endpoints implementados
 
-4. **Servicio de productos**
-   * Agregar, modificar y eliminar artículos
-   * Vincular productos a un sitio web
+### Diagnostico
+- `GET /api/health`
 
-5. **Servicio de imágenes**
-   * Carga de imágenes en Cloudinary
-   * Administración de archivos multimedia
+### Autenticacion
+- `POST /api/auth/register`
+- `POST /api/registro` (alias)
+- `POST /api/auth/login`
+- `POST /api/login` (alias)
+- `GET /api/auth/me`
 
-6. **Servicio de inteligencia artificial**
-   * Creación automática de descripciones
-   * Soporte en la generación de contenido
+### Tiendas
+- `GET /api/tiendas`
+- `GET /api/tiendas/destacadas`
+- `GET /api/tiendas/mias`
+- `GET /api/tiendas/:id`
+- `GET /api/tiendas/:id/vista-publica`
+- `POST /api/tiendas`
+- `PATCH /api/tiendas/:id`
 
----
+### Temas
+- `GET /api/temas`
+- `POST /api/temas`
+- `PATCH /api/temas/:id`
 
-## ¿Qué partes pueden trabajar por separado?
+### Categorias
+- `GET /api/categorias`
 
-- El servicio de imágenes puede operar de forma autónoma.
-- La inteligencia artificial puede implementarse como un servicio externo.
-- La base de datos actúa como un servicio centralizado.
-- El frontend y el backend se encuentran desacoplados del almacenamiento multimedia.
+### Productos
+- `GET /api/productos`
+- `POST /api/productos`
+- `PATCH /api/productos/:id`
+- `DELETE /api/productos/:id`
 
----
+### Media
+- `POST /api/media/upload`
 
-# ¿CÓMO SE COMUNICAN?  
+## Archivos Docker a presentar
 
-## Comunicación entre servicios
+- `docker-compose.yml`: orquestacion de servicios, red y volumen.
+- `Dockerfile`: build del frontend y despliegue en Nginx.
+- `nginx.conf`: proxy inverso de `/api` a `api-service`.
+- `servicio-api/Dockerfile`: contenedor del backend.
+- `.dockerignore`: exclusiones de build.
+- `init-db/init.sql`: esquema/seed inicial de MySQL.
+- `.env`: variables de entorno (sin exponer secretos en la presentacion).
 
-Ejemplos dentro del sistema:
+## Datos del sistema
 
-- Usuarios → requiere → Servicio de Autenticación
-- Páginas Web → accede a → Base de Datos
-- Productos → obtiene información de → Base de Datos
-- Servicio de IA → provee respuesta a → Páginas Web
-- Imágenes → guarda archivos en → Cloudinary
+Datos principales:
+- usuarios,
+- tiendas,
+- temas,
+- productos,
+- categorias.
 
+Datos criticos:
+- usuarios (autenticacion),
+- tiendas,
+- productos.
 
----
+## Riesgos y mitigacion
 
-## Flujo general
+### Caida de MySQL
+**Impacto:** no se pueden leer ni persistir datos de negocio.  
+**Mitigacion:** volumen persistente, respaldos periodicos y manejo de errores en API.
 
-1. El usuario accede al sistema.
-2. El sistema verifica las credenciales ingresadas.
-3. El usuario genera una nueva página.
-4. La información se almacena en la base de datos.
-5. Si se cargan imágenes, estas se envían a Cloudinary.
-6. Si se requiere contenido, se realiza una consulta al servicio de IA.
-7. La página se despliega en Vercel.
+### Caida de Cloudinary
+**Impacto:** falla la subida/visualizacion de imagenes externas.  
+**Mitigacion:** validacion de configuracion, respuestas controladas y uso de imagenes por defecto.
 
-Cada servicio desempeña una tarea específica y se integra con los demás a través de solicitudes y respuestas.
+### Caida del backend API
+**Impacto:** el frontend no puede operar sobre datos dinamicos.  
+**Mitigacion:** `restart` en Compose, endpoint de health y monitoreo.
 
----
+## Ejecucion local con Docker
 
-# PARTE 4 – ELEGIR LA ARQUITECTURA  
+### Requisitos
+- Docker
+- Docker Compose
 
-☐ Cliente–Servidor  
-☐ Arquitectura en capas  
-☑ Microservicios  
-☐ Basados en eventos  
-☐ Híbrida  
+### Pasos
 
----
+1. Configurar variables en `.env` (si aplica).
+2. Levantar servicios:
 
-## Justificación de nuestra elección
+```bash
+docker compose up --build
+```
 
-Elegimos una arquitectura de microservicios debido a que el sistema cuenta con múltiples funcionalidades independientes que pueden escalar de manera individual, tales como:
+3. Abrir:
+   - Frontend: `http://localhost:8080`
+   - API health: `http://localhost:8080/api/health`
 
-- Autenticación
-- Administración de productos
-- Inteligencia artificial
-- Gestión de almacenamiento de imágenes
+## Pruebas de API con Postman
 
-Además, al estar implementado en Vercel y vinculado con servicios externos como Supabase, Groq y Cloudinary, el sistema opera como un conjunto de servicios distribuidos.
+La coleccion de endpoints se encuentra en:
 
-Este enfoque arquitectónico permite:
+- `postman/Mercado_Liebre_API.postman_collection.json`
 
-- Escalabilidad independiente
-- Mantenimiento más eficiente
-- Separación clara de responsabilidades
-- Mayor adaptabilidad y flexibilidad
-
----
-
-# BASE DE DATOS  
-
-## ¿Qué información debe guardarse?
-
-La base de datos debe encargarse de almacenar:
-
-- Datos de los usuarios
-- Información de autenticación
-- Detalles de los negocios
-- Configuraciones de las páginas web
-- Información de los productos
-- Enlaces (URLs) de las imágenes
-- Fechas de registro y última actualización
-
----
-
-## ¿Qué datos son más importantes?
-
-Los datos más importantes son:
-
-- Datos de identificación del usuario
-- Información correspondiente al negocio
-- Productos que han sido publicados
-- Ajustes y configuración de la página
-
-Si esta información se pierde, el negocio quedaría sin su presencia digital dentro de la plataforma.
-
-
----
-
-# FAllAS Y RIESGOS
-
-## ¿Quién usará el sistema?
-
-- Administrador
-- Cliente (propietario del negocio)
-- Visitante (persona que accede a la página pública del negocio)
-
-No todos cuentan con los mismos permisos:
-- El administrador tiene la capacidad de administrar la plataforma.
-- El cliente puede modificar y gestionar la información de su negocio.
-- El visitante únicamente puede visualizar la página pública.
-
----
-
-# FALLAS Y RIESGOS
-
-- Servicio de IA (Groq): no se generarían descripciones automáticas.
-  Base de datos (Supabase): no sería posible almacenar ni consultar información.
-- Servidor principal (Vercel): la aplicación dejaría de estar disponible.
-- Cloudinary: no se podrían subir ni visualizar imágenes.
-  
-Posibles soluciones:
-- Implementar mecanismos de reintento automático.
-- Mostrar mensajes de error controlados y comprensibles para el usuario.
-- Realizar copias de seguridad periódicas de la base de datos.
-- Establecer monitoreo constante del sistema.
+Recomendacion para demo:
+1. `GET /api/health`
+2. registro/login para obtener token
+3. flujo de tienda
+4. flujo CRUD de productos
