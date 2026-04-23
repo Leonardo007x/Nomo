@@ -1,223 +1,175 @@
-# Arquitectura del Sistema – NOMO
+# Mercado Liebre
 
-## Información General del Proyecto
+Mercado Liebre es una plataforma para que pequeños negocios publiquen y administren su catalogo digital de forma rapida, con gestion de tienda, productos y configuracion visual.
 
-**Nombre del proyecto:** NOMO  
+El proyecto implementa una arquitectura de servicios desplegada con Docker Compose, integrada por frontend, API backend y base de datos MySQL.
 
-**Problema que resuelve:**  
-NOMO es una plataforma que permite a pequeños y medianos negocios crear su propia página web utilizando plantillas personalizables. El problema que resuelve es la falta de presencia digital profesional para emprendedores que no tienen conocimientos técnicos ni recursos para contratar un desarrollador web.
+## Problema que resuelve
 
-**Roles del equipo:**  
-- Brayan Esmid Cruz – Líder del proyecto  
-- Julián Leonardo Cerón – Encargado de presentación  
-- Elkin Yesid Yandun – Encargado técnico  
-- Jeison Javier Guerra – Encargado de documentación  
+Muchos negocios pequenos:
+- no cuentan con un sitio propio,
+- dependen de herramientas genericas con poco control,
+- y tienen dificultad para mantener su catalogo actualizado.
 
-**Repositorio:**  
-[El proyecto se encuentra alojado en GitHub.](https://github.com/Leonardo007x/Nomo)
+Mercado Liebre centraliza la administracion de tienda y productos, y expone una vista publica consumible por clientes.
 
----
+## Usuarios del sistema
 
-# PARTE 1 — ENTENDER EL PROBLEMA
+- **Administrador de plataforma**: gestiona la operacion global.
+- **Dueno de negocio**: crea y administra su tienda, productos y configuracion.
+- **Cliente/visitante**: navega el catalogo publico.
 
-## 1. ¿Qué problema resuelve el sistema?
+## Arquitectura implementada (actual)
 
-El sistema permite que emprendedores y dueños de negocios puedan crear y personalizar su propia página web para mostrar sus productos o servicios. Facilita la creación de sitios web sin necesidad de conocimientos en programación.
+La solucion actual esta desplegada con Docker Compose y utiliza estos componentes:
 
-## 2. ¿Quién lo usará?
+- **Frontend**: aplicacion React/Vite servida con Nginx.
+- **API**: servicio Node.js + Express (`api-service`).
+- **Base de datos**: MySQL 8 (`db-service`).
+- **Media externa (opcional)**: Cloudinary para subida de imagenes.
 
-- Emprendedores  
-- Pequeños y medianos negocios  
-- Personas que venden productos en redes sociales  
-- Usuarios que necesiten una página web sencilla y rápida  
+Flujo principal:
 
-## 3. ¿Qué pasaría si no existiera?
+1. El usuario accede al frontend en `http://localhost:8080`.
+2. Nginx enruta `/api/*` hacia `api-service:3000`.
+3. La API consulta/persiste datos en MySQL.
+4. Para imagenes, la API usa Cloudinary cuando esta configurado.
 
-Si no existiera NOMO, los negocios tendrían que contratar desarrolladores, usar únicamente redes sociales como canal de ventas o no contar con presencia digital profesional, lo que limitaría su crecimiento.
+## Servicios existentes
 
----
+### 1) Servicio de autenticacion y usuarios
 
-# PARTE 2 — IDENTIFICAR LOS SERVICIOS
+Implementado dentro de `servicio-api/server.js`:
+- registro y login,
+- validacion JWT,
+- consulta de sesion actual (`/api/auth/me`).
 
-## ¿Qué funciones principales tiene el sistema?
+### 2) Servicio de tiendas y configuracion
 
-- Registro e inicio de sesión de usuarios  
-- Creación y edición de páginas web  
-- Gestión de productos  
-- Generación de texto con inteligencia artificial  
-- Almacenamiento de imágenes  
-- Gestión de datos en base de datos  
+Implementado en la API:
+- creacion y actualizacion de tiendas,
+- consulta publica/privada de tienda,
+- temas visuales asociados.
 
-## ¿Qué partes pueden trabajar por separado?
+### 3) Servicio de productos y categorias
 
-- Servicio de autenticación  
-- Servicio de gestión de negocios  
-- Servicio de productos  
-- Servicio de generación de contenido con IA  
-- Servicio de almacenamiento de imágenes  
-- Servicio de base de datos  
+Implementado en la API:
+- alta, consulta, actualizacion y eliminacion de productos,
+- consulta de categorias por tienda.
 
-## ¿Qué procesos son independientes?
+### 4) Servicio de medios
 
-- Subida de imágenes  
-- Generación automática de descripciones con IA  
-- Guardado y consulta de datos  
-- Renderizado de plantillas  
+Implementado en la API:
+- endpoint de subida `POST /api/media/upload`,
+- integracion con Cloudinary por variables de entorno.
 
----
+### 5) Analitica e IA
 
-# PARTE 3 — ¿CÓMO SE COMUNICAN?
+En el estado actual del backend no existe un microservicio independiente de analitica ni de IA en produccion dentro de Docker Compose.
 
-## ¿Qué servicio necesita información de otro?
+## Endpoints implementados
 
-El frontend necesita información del backend.  
-El backend necesita información de la base de datos.  
-El backend también se comunica con servicios externos como el de inteligencia artificial y almacenamiento de imágenes.
+### Diagnostico
+- `GET /api/health`
 
-## ¿Quién solicita datos?
+### Autenticacion
+- `POST /api/auth/register`
+- `POST /api/registro` (alias)
+- `POST /api/auth/login`
+- `POST /api/login` (alias)
+- `GET /api/auth/me`
 
-El frontend solicita datos al backend.  
-El backend solicita datos a la base de datos y a los servicios externos.
+### Tiendas
+- `GET /api/tiendas`
+- `GET /api/tiendas/destacadas`
+- `GET /api/tiendas/mias`
+- `GET /api/tiendas/:id`
+- `GET /api/tiendas/:id/vista-publica`
+- `POST /api/tiendas`
+- `PATCH /api/tiendas/:id`
 
-## ¿Quién responde?
+### Temas
+- `GET /api/temas`
+- `POST /api/temas`
+- `PATCH /api/temas/:id`
 
-El backend responde al frontend.  
-La base de datos y los servicios externos responden al backend.
+### Categorias
+- `GET /api/categorias`
 
-Ejemplo de flujo:
+### Productos
+- `GET /api/productos`
+- `POST /api/productos`
+- `PATCH /api/productos/:id`
+- `DELETE /api/productos/:id`
 
-- Usuario crea un producto → Backend guarda la información en la base de datos.  
-- Usuario genera descripción → Backend solicita contenido a la IA → IA responde con el texto generado.
+### Media
+- `POST /api/media/upload`
 
----
+## Archivos Docker a presentar
 
-# PARTE 4 — ELEGIR LA ARQUITECTURA
+- `docker-compose.yml`: orquestacion de servicios, red y volumen.
+- `Dockerfile`: build del frontend y despliegue en Nginx.
+- `nginx.conf`: proxy inverso de `/api` a `api-service`.
+- `servicio-api/Dockerfile`: contenedor del backend.
+- `.dockerignore`: exclusiones de build.
+- `init-db/init.sql`: esquema/seed inicial de MySQL.
+- `.env`: variables de entorno (sin exponer secretos en la presentacion).
 
-Arquitectura seleccionada: Microservicios
+## Datos del sistema
 
-## ¿Cuántos usuarios tendrá el sistema?
+Datos principales:
+- usuarios,
+- tiendas,
+- temas,
+- productos,
+- categorias.
 
-Se espera que pueda tener múltiples negocios registrados, por lo que debe estar preparado para crecer.
+Datos criticos:
+- usuarios (autenticacion),
+- tiendas,
+- productos.
 
-## ¿Necesita escalar?
+## Riesgos y mitigacion
 
-Sí. La plataforma debe soportar el crecimiento de usuarios y negocios.
+### Caida de MySQL
+**Impacto:** no se pueden leer ni persistir datos de negocio.  
+**Mitigacion:** volumen persistente, respaldos periodicos y manejo de errores en API.
 
-## ¿Es un sistema pequeño o grande?
+### Caida de Cloudinary
+**Impacto:** falla la subida/visualizacion de imagenes externas.  
+**Mitigacion:** validacion de configuracion, respuestas controladas y uso de imagenes por defecto.
 
-Actualmente es un sistema en crecimiento, pero con potencial de convertirse en una plataforma grande.
+### Caida del backend API
+**Impacto:** el frontend no puede operar sobre datos dinamicos.  
+**Mitigacion:** `restart` en Compose, endpoint de health y monitoreo.
 
-## Justificación
+## Ejecucion local con Docker
 
-Elegimos esta arquitectura porque el sistema trabaja con varios servicios independientes como base de datos, almacenamiento de imágenes e inteligencia artificial. Esta separación permite mayor escalabilidad, mantenimiento más sencillo y mejor organización del sistema.
+### Requisitos
+- Docker
+- Docker Compose
 
----
+### Pasos
 
-# PARTE 5 — BASE DE DATOS
+1. Configurar variables en `.env` (si aplica).
+2. Levantar servicios:
 
-## ¿Qué información debe guardarse?
+```bash
+docker compose up --build
+```
 
-- Usuarios  
-- Negocios  
-- Productos  
-- Configuración de plantillas  
-- Información personalizada de cada página  
+3. Abrir:
+   - Frontend: `http://localhost:8080`
+   - API health: `http://localhost:8080/api/health`
 
-## ¿Qué datos son críticos?
+## Pruebas de API con Postman
 
-- Datos de autenticación  
-- Información de los negocios  
-- Productos registrados  
+La coleccion de endpoints se encuentra en:
 
-## ¿Qué pasaría si se pierden?
+- `postman/Mercado_Liebre_API.postman_collection.json`
 
-Se perdería la información de los usuarios y sus páginas web dejarían de funcionar correctamente.
-
-## ¿Todos los servicios usan la misma base de datos o cada uno tiene la suya?
-
-Actualmente todos los servicios utilizan la misma base de datos centralizada.
-
----
-
-# PARTE 6 — IDENTIFICAR USUARIOS
-
-## ¿Quién usará el sistema?
-
-- Administrador  
-- Cliente (dueño del negocio)  
-- Visitante (usuario final que ve la página pública)
-
-## ¿Todos pueden hacer lo mismo?
-
-No.  
-El administrador gestiona la plataforma.  
-El cliente puede crear y editar su negocio.  
-El visitante solo puede visualizar la información pública.
-
----
-
-# PARTE 7 — FALLAS Y RIESGOS
-
-## ¿Qué pasaría si falla el servicio de IA?
-
-No se podrían generar descripciones automáticas, pero el usuario podría escribirlas manualmente.
-
-## ¿Qué pasaría si falla la base de datos?
-
-No se podrían guardar ni consultar datos, afectando el funcionamiento general del sistema.
-
-## ¿Qué pasaría si falla el servidor principal?
-
-La aplicación no estaría disponible temporalmente.
-
-## Posibles soluciones
-
-- Implementar reintentos automáticos.  
-- Mostrar mensajes de error controlados.  
-- Realizar copias de seguridad periódicas.  
-- Monitorear el estado del sistema.
-
----
-
-# PARTE 8 — DOCUMENTACIÓN EN EL README
-
-Este documento incluye:
-
-- Descripción del proyecto  
-- Problema que resuelve  
-- Servicios identificados  
-- Comunicación entre servicios  
-- Arquitectura seleccionada  
-- Usuarios del sistema  
-- Riesgos y posibles soluciones  
-
----
-
-# PARTE 9 — COMMIT Y PULL REQUEST
-
-Commits realizados por sección:
-
-- doc: definición de servicios  
-- doc: comunicación entre servicios  
-- doc: arquitectura seleccionada  
-- doc: usuarios del sistema  
-
-Pull Request:
-
-**Título:**  
-Arquitectura inicial del sistema  
-
-**Descripción:**  
-Se definieron los servicios principales, la comunicación entre ellos, la arquitectura seleccionada, los usuarios del sistema y los posibles riesgos.
-
----
-
-# PARTE 10 — REVISIÓN DEL EQUIPO
-
-Cada integrante debe:
-
-- Leer la arquitectura completa.  
-- Sugerir mejoras.  
-- Identificar posibles fallos.  
-- Confirmar que el diseño tenga coherencia y posibilidad de escalabilidad.
-
+Recomendacion para demo:
+1. `GET /api/health`
+2. registro/login para obtener token
+3. flujo de tienda
+4. flujo CRUD de productos
