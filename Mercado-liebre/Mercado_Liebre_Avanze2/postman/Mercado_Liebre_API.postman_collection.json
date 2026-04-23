@@ -1,0 +1,436 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-mercado-liebre-api",
+    "name": "Mercado Liebre API",
+    "description": "Importar en Postman: File → Import → este archivo.\n\nVariables: `baseUrl` (por defecto http://localhost:8080 con Docker). Tras **Login** o **Registro**, se guarda `token` para rutas protegidas.\n\nOpcional: cambia `tiendaId`, `temaId`, `productoId` según tus datos.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "token", "value": "" },
+    { "key": "tiendaId", "value": "REEMPLAZA_CON_UUID_DE_TU_TIENDA" },
+    { "key": "temaId", "value": "REEMPLAZA_CON_UUID_DEL_TEMA" },
+    { "key": "productoId", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "Diagnóstico",
+      "item": [
+        {
+          "name": "GET Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/health"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "POST Registro (alias /api/registro)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const j = pm.response.json();",
+                  "  if (j.token) pm.collectionVariables.set('token', j.token);",
+                  "  if (j.userId) pm.collectionVariables.set('userId', j.userId);",
+                  "  else if (j.user && j.user.id) pm.collectionVariables.set('userId', j.user.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"nuevo.usuario@ejemplo.com\",\n  \"password\": \"ClaveSegura1\",\n  \"nombre\": \"Nombre\",\n  \"apellido\": \"Apellido\"\n}"
+            },
+            "url": "{{baseUrl}}/api/registro"
+          }
+        },
+        {
+          "name": "POST Auth Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const j = pm.response.json();",
+                  "  if (j.token) pm.collectionVariables.set('token', j.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"otro@ejemplo.com\",\n  \"password\": \"ClaveSegura1\",\n  \"nombre\": \"Nombre\",\n  \"apellido\": \"Apellido\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/register"
+          }
+        },
+        {
+          "name": "POST Login (alias /api/login)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const j = pm.response.json();",
+                  "  if (j.token) pm.collectionVariables.set('token', j.token);",
+                  "  if (j.userId) pm.collectionVariables.set('userId', j.userId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"TU_EMAIL_REGISTRADO@ejemplo.com\",\n  \"password\": \"TU_CONTRASEÑA\"\n}"
+            },
+            "url": "{{baseUrl}}/api/login"
+          }
+        },
+        {
+          "name": "POST Auth Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const j = pm.response.json();",
+                  "  if (j.token) pm.collectionVariables.set('token', j.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"TU_EMAIL_REGISTRADO@ejemplo.com\",\n  \"password\": \"TU_CONTRASEÑA\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/login"
+          }
+        },
+        {
+          "name": "GET Auth Me (JWT)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{baseUrl}}/api/auth/me"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Productos",
+      "item": [
+        {
+          "name": "GET Productos (todos)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/productos"
+          }
+        },
+        {
+          "name": "GET Productos por tienda",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/productos?tienda_id={{tiendaId}}"
+          }
+        },
+        {
+          "name": "GET Productos activos filtro",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/productos?tienda_id={{tiendaId}}&activo=true"
+          }
+        },
+        {
+          "name": "POST Producto (JWT)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tienda_id\": \"{{tiendaId}}\",\n  \"nombre\": \"Producto de prueba\",\n  \"descripcion\": \"Descripción\",\n  \"precio\": 9.99,\n  \"categoria\": \"General\"\n}"
+            },
+            "url": "{{baseUrl}}/api/productos"
+          }
+        },
+        {
+          "name": "PATCH Producto (JWT)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Producto actualizado\",\n  \"precio\": 12.5\n}"
+            },
+            "url": "{{baseUrl}}/api/productos/{{productoId}}"
+          }
+        },
+        {
+          "name": "DELETE Producto (JWT)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{baseUrl}}/api/productos/{{productoId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tiendas",
+      "item": [
+        {
+          "name": "GET Tiendas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/tiendas"
+          }
+        },
+        {
+          "name": "GET Tiendas destacadas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/tiendas/destacadas"
+          }
+        },
+        {
+          "name": "GET Mi tienda (JWT)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const j = pm.response.json();",
+                  "  if (j && j.id) pm.collectionVariables.set('tiendaId', j.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{baseUrl}}/api/tiendas/mias"
+          }
+        },
+        {
+          "name": "GET Tienda por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/tiendas/{{tiendaId}}"
+          }
+        },
+        {
+          "name": "GET Vista pública tienda",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/tiendas/{{tiendaId}}/vista-publica"
+          }
+        },
+        {
+          "name": "POST Crear tienda (JWT)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const j = pm.response.json();",
+                  "  if (j && j.id) pm.collectionVariables.set('tiendaId', j.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/tiendas"
+          }
+        },
+        {
+          "name": "PATCH Actualizar tienda (JWT)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Mi tienda actualizada\",\n  \"descripcion\": \"Texto de prueba\"\n}"
+            },
+            "url": "{{baseUrl}}/api/tiendas/{{tiendaId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Temas",
+      "item": [
+        {
+          "name": "GET Tema por tienda_id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/temas?tienda_id={{tiendaId}}"
+          }
+        },
+        {
+          "name": "POST Crear tema (JWT)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const j = pm.response.json();",
+                  "  if (j && j.id) pm.collectionVariables.set('temaId', j.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tienda_id\": \"{{tiendaId}}\",\n  \"color_primario\": \"#FFE600\",\n  \"estilo_plantilla\": \"moderno\"\n}"
+            },
+            "url": "{{baseUrl}}/api/temas"
+          }
+        },
+        {
+          "name": "PATCH Actualizar tema (JWT)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"color_fondo\": \"#EBEBEB\"\n}"
+            },
+            "url": "{{baseUrl}}/api/temas/{{temaId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Categorías",
+      "item": [
+        {
+          "name": "GET Categorías por tienda",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/categorias?tienda_id={{tiendaId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Media",
+      "item": [
+        {
+          "name": "POST Subir imagen (JWT)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "",
+                  "description": "Selecciona un archivo de imagen en Postman (Body → form-data → file)"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/api/media/upload"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Evidencia rubrica (GET catálogo)",
+      "item": [
+        {
+          "name": "GET Productos (equivalente lista catálogo)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "La guía que menciona GET /api/articulos: en este proyecto los productos están en /api/productos",
+            "url": "{{baseUrl}}/api/productos"
+          }
+        }
+      ]
+    }
+  ]
+}

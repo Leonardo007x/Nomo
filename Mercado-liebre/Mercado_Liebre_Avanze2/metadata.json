@@ -1,0 +1,10 @@
+{
+  "name": "Mercado Liebre Builder",
+  "description": "Plataforma IA para crear catálogos digitales profesionales con el estilo de Mercado Libre. Gestión de inventario, diseño moderno y sistemas distribuidos.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ],
+  "majorCapabilities": []
+}

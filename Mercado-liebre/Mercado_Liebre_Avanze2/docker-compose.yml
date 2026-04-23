@@ -1,0 +1,76 @@
+version: '3.9'
+
+services:
+  # 1. FRONTEND: Aplicación Vite compilada estáticamente en Nginx
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mercadoliebre_frontend
+    ports:
+      - "8080:80"
+    networks:
+      - mercadoliebre-net
+    depends_on:
+      - api-service
+    restart: always
+
+  # 2. BACKEND: Microservicio Node.js API (Escrito desde cero)
+  api-service:
+    build:
+      context: ./servicio-api
+      dockerfile: Dockerfile
+    container_name: mercadoliebre_api
+    environment:
+      - DB_HOST=db-service
+      - MYSQL_USER=${MYSQL_USER:-admin}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-adminpassword}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-mercadoliebre_db_prod}
+      - JWT_SECRET=${JWT_SECRET:-mercadoliebre_jwt_cambiar_en_produccion}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME:-}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY:-}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET:-}
+    networks:
+      - mercadoliebre-net
+    depends_on:
+      db-service:
+        condition: service_healthy
+    expose:
+      - "3000" # Expuesto internamente para que Nginx rutee
+    restart: always
+
+  # 3. BASE DE DATOS: MySQL Desplegada
+  db-service:
+    image: mysql:8.0
+    container_name: mercadoliebre_db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: adminpassword
+      MYSQL_DATABASE: mercadoliebre_db_prod
+    ports:
+      - "3306:3306"
+    networks:
+      - mercadoliebre-net
+    volumes:
+      # Persistencia de datos en contenedor
+      - mysqldata:/var/lib/mysql
+      # Script de inicialización de tablas e inyección de datos (Bootstrap)
+      - ./init-db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-rootpassword}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 25s
+    restart: on-failure
+
+volumes:
+  # Volumen para persistir los datos de MySQL
+  mysqldata:
+    driver: local
+
+networks:
+  # Red virtual explícita entre contenedores
+  mercadoliebre-net:
+    driver: bridge

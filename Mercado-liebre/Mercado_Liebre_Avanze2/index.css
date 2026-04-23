@@ -1,0 +1,12 @@
+/* Global reset and styles */
+
+@layer utilities {
+  .animate-fadeIn {
+    animation: fadeIn 0.5s ease-out;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
