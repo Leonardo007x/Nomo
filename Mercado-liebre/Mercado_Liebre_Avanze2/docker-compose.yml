@@ -21,15 +21,17 @@ services:
       context: ./servicio-api
       dockerfile: Dockerfile
     container_name: mercadoliebre_api
+    env_file:
+      - .env
     environment:
-      - DB_HOST=db-service
-      - MYSQL_USER=${MYSQL_USER:-admin}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-adminpassword}
-      - MYSQL_DATABASE=${MYSQL_DATABASE:-mercadoliebre_db_prod}
-      - JWT_SECRET=${JWT_SECRET:-mercadoliebre_jwt_cambiar_en_produccion}
-      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME:-}
-      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY:-}
-      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET:-}
+      - DB_HOST=${DB_HOST}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - JWT_SECRET=${JWT_SECRET}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
     networks:
       - mercadoliebre-net
     depends_on:
@@ -43,11 +45,13 @@ services:
   db-service:
     image: mysql:8.0
     container_name: mercadoliebre_db
+    env_file:
+      - .env
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_USER: admin
-      MYSQL_PASSWORD: adminpassword
-      MYSQL_DATABASE: mercadoliebre_db_prod
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
     ports:
       - "3306:3306"
     networks:
