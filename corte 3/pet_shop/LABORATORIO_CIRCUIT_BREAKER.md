@@ -31,9 +31,6 @@ Sin implementar circuit breaker, el sistema:
 
 ## **FASE 2 – APLICAR (Extensión del Circuit Breaker)**
 
-### Objetivo
-Aplicar la misma lógica de circuit breaker a todos los endpoints del gateway.
-
 ### Decisiones de diseño
 
 #### **1. ¿Cada servicio debe tener su propio contador de fallos?**
@@ -55,6 +52,7 @@ circuitos = {
     }
 }
 ```
+![Descripción de la imagen](capturas/fase2.png)
 
 **Razón:** 
 - Un servicio puede estar caído mientras otro funciona
@@ -88,6 +86,7 @@ else:
 - Si usuarios falla → `/resumen` devuelve usuarios con error pero mascotas funciona
 - Si backend falla → `/resumen` devuelve backend con error pero usuarios funciona
 - El cliente siempre recibe una respuesta (parcial si es necesario)
+![Descripción de la imagen](capturas/fase2.1.png)
 
 ### Endpoints protegidos
 
@@ -116,6 +115,7 @@ HALF-OPEN (reintentando)
    ├─ ✅ Éxito → CLOSED
    └─ ❌ Fallo → OPEN (reinicia)
 ```
+![Descripción de la imagen](capturas/fase3.png)
 
 ### ¿Cuándo se vuelve a intentar una llamada?
 
@@ -205,6 +205,8 @@ except Exception as e:
    
 3. Estado HALF-OPEN - Intentando recuperación
    [RECOVERY] Intentando recuperación después de 10.0s
+
+![Descripción de la imagen](capturas/fase4.png)
    
 4a. Recuperación exitosa → CLOSED
    [RECOVERY EXITOSA] backend: circuito cerrado
@@ -231,6 +233,7 @@ GET /mascotas
 → [GET] http://backend:5000/mascotas - Status: 200
 → {datos de mascotas}
 ```
+![Descripción de la imagen](capturas/fase5.png)
 
 ### Escenario 2: Servicio caído ❌
 
@@ -258,6 +261,7 @@ GET /mascotas (intento 4)
 → [CIRCUITO ABIERTO] backend: petición rechazada
 → 503 (sin intentar conexión)
 ```
+![Descripción de la imagen](capturas/fase5.2.png)
 
 ### Escenario 3: Circuito abierto ⊗
 
@@ -272,6 +276,7 @@ GET /mascotas
 → [CIRCUITO ABIERTO] backend: petición rechazada
 → 503 (respuesta inmediata, sin timeout)
 ```
+![Descripción de la imagen](capturas/fase5.3.png)
 
 ### Escenario 4: Recuperación del servicio 🔄
 
@@ -308,7 +313,7 @@ GET /mascotas (en segundo 10+)
 → Respuesta: 503 (sin timeout)
 → Espera otros 10 segundos antes de reintentar
 ```
-
+![Descripción de la imagen](capturas/fase5.4.png)
 ---
 
 ## **ANÁLISIS FINAL**
