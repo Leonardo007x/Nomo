@@ -8,7 +8,7 @@
 3. Hacer varias peticiones al gateway (`/mascotas`, `/resumen`)
 4. Revisar logs y comportamiento
 
-![Descripción de la imagen](capturas/fase 1.png)
+![Descripción de la imagen](capturas/fase1.png)
 ### Respuestas
 
 **¿Qué hace el sistema actualmente?**
