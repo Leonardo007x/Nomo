@@ -204,9 +204,7 @@ except Exception as e:
    ... (esperando 10 segundos) ...
    
 3. Estado HALF-OPEN - Intentando recuperación
-   [RECOVERY] Intentando recuperación después de 10.0s
-
-![Descripción de la imagen](capturas/fase4.png)
+   [RECOVERY] Intentando recuperación después de 10.0s 
    
 4a. Recuperación exitosa → CLOSED
    [RECOVERY EXITOSA] backend: circuito cerrado
@@ -216,7 +214,7 @@ except Exception as e:
    [RECOVERY FALLIDA] backend: circuito reabierto
    Vuelto a OPEN, espera otros 10s
 ```
-
+![Descripción de la imagen](capturas/fase4.png)
 ---
 
 ## **FASE 5 – VALIDAR (Escenarios)**
@@ -374,45 +372,3 @@ GET /mascotas (en segundo 10+)
    - Solución: Prefijos como [RECOVERY], [CIRCUITO ABIERTO]
 
 ---
-
-## **CONCLUSIONES**
-
-### ¿Qué aprendimos?
-
-El **Circuit Breaker** es un patrón esencial en sistemas distribuidos que:
-
-✅ **Protege** el sistema de cascadas de fallos
-✅ **Fail-fast**: Rechaza rápido en vez de esperar timeout
-✅ **Aísla** fallos por servicio
-✅ **Recupera** automáticamente cuando es posible
-✅ **Comunica** estado a través de logs y códigos HTTP
-
-### Comparativa de patrones
-
-```
-Sin Circuit Breaker:
-Cliente → Timeout → Timeout → Timeout → Timeout
-         (2s)      (2s)      (2s)      (2s)
-         Total: 8+ segundos por cliente
-
-Con Circuit Breaker:
-Cliente → Rechazo (50ms)
-Cliente → Rechazo (50ms)  ← Respuesta inmediata
-Cliente → Rechazo (50ms)  ← Sin sobrecargar servidor caído
-         Total: <100ms por cliente
-```
-
-### Implementación completada
-
-✅ Circuit Breaker básico (3 estados)
-✅ Recuperación automática (half-open)
-✅ Circuitos independientes por servicio
-✅ Logs detallados de transiciones
-✅ Respuestas parciales en endpoints mixtos
-✅ Timeouts configurables
-
----
-
-**Archivo de implementación:** `gateway/app.py`
-**Fecha:** Mayo 6, 2026
-**Estado:** COMPLETADO ✅
