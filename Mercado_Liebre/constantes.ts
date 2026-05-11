@@ -3,25 +3,7 @@
  * Descripción: Definición de variables de entorno y constantes globales del sistema.
  */
 
-// Función segura para leer variables de entorno con fallback
-const getEnv = (key: string, fallback: string): string => {
-  try {
-    // @ts-ignore
-    if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env[key]) {
-      // @ts-ignore
-      return import.meta.env[key];
-    }
-  } catch (e) {
-    console.warn(`Error leyendo variable ${key}`, e);
-  }
-  return fallback;
-};
-
-// Configuración de claves API y servicios externos (datos vía servicio-api + MySQL en Docker).
-// Las imágenes se suben con POST /api/media/upload usando CLOUDINARY_* en el servidor (docker-compose / .env).
-export const ENV = {
-  GROQ_API_KEY: getEnv("VITE_GROQ_API_KEY", "")
-};
+// Las variables sensibles viven en backend/microservicios (no en frontend).
 
 // Opciones de configuración visual
 export const FUENTES = [

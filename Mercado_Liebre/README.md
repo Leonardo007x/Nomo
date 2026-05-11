@@ -2,7 +2,7 @@
 
 Mercado Liebre es una plataforma para que pequeños negocios publiquen y administren su catalogo digital de forma rapida, con gestion de tienda, productos y configuracion visual.
 
-El proyecto implementa una arquitectura de servicios desplegada con Docker Compose, integrada por frontend, API backend y base de datos MySQL.
+El proyecto implementa **microservicios** con Docker Compose: API Gateway (Nginx), tres backends Node (usuarios, tiendas, catálogo), cada uno con **su propia base MySQL**, más frontend React servido por Nginx.
 
 ## Problema que resuelve
 
@@ -21,56 +21,32 @@ Mercado Liebre centraliza la administracion de tienda y productos, y expone una 
 
 ## Arquitectura implementada (actual)
 
-La solucion actual esta desplegada con Docker Compose y utiliza estos componentes:
+Componentes en Docker Compose:
 
-- **Frontend**: aplicacion React/Vite servida con Nginx.
-- **API**: servicio Node.js + Express (`api-service`).
-- **Base de datos**: MySQL 8 (`db-service`).
-- **Media externa (opcional)**: Cloudinary para subida de imagenes.
+- **Frontend**: React/Vite compilado, servido por Nginx (`frontend`, puerto host **8080**).
+- **API Gateway**: Nginx (`gateway`, puerto host **3000**) enruta `/api/*` al microservicio correspondiente.
+- **usuarios-service** + **db-usuarios** (`usuarios_db`): registro, login, JWT, `/api/auth/me`.
+- **tiendas-service** + **db-tiendas** (`tiendas_db`): tiendas, temas, vista pública agrega productos llamando por HTTP al catálogo.
+- **catalogo-service** + **db-catalogo** (`catalogo_db`): productos, categorías, subida a Cloudinary. Valida dueño de tienda vía HTTP a `tiendas-service` (`/internal/...`) con `INTERNAL_SERVICE_TOKEN`.
 
 Flujo principal:
 
-1. El usuario accede al frontend en `http://localhost:8080`.
-2. Nginx enruta `/api/*` hacia `api-service:3000`.
-3. La API consulta/persiste datos en MySQL.
-4. Para imagenes, la API usa Cloudinary cuando esta configurado.
+1. El usuario entra en `http://localhost:8080`.
+2. El Nginx del frontend envía `/api/*` al **gateway**.
+3. El gateway reenvía a usuarios, tiendas o catálogo según la ruta.
+4. Cada microservicio usa solo su MySQL; no hay FK entre bases (referencias lógicas por `usuario_id` / `tienda_id`).
 
-## Servicios existentes
+Comunicación entre servicios:
 
-### 1) Servicio de autenticacion y usuarios
+- **Tiendas → Catálogo**: `GET /api/productos?tienda_id=...` para armar `vista-publica`.
+- **Catálogo → Tiendas**: `GET /internal/tiendas/:id/owner` (token interno) antes de crear/editar/borrar productos.
 
-Implementado dentro de `servicio-api/server.js`:
-- registro y login,
-- validacion JWT,
-- consulta de sesion actual (`/api/auth/me`).
-
-### 2) Servicio de tiendas y configuracion
-
-Implementado en la API:
-- creacion y actualizacion de tiendas,
-- consulta publica/privada de tienda,
-- temas visuales asociados.
-
-### 3) Servicio de productos y categorias
-
-Implementado en la API:
-- alta, consulta, actualizacion y eliminacion de productos,
-- consulta de categorias por tienda.
-
-### 4) Servicio de medios
-
-Implementado en la API:
-- endpoint de subida `POST /api/media/upload`,
-- integracion con Cloudinary por variables de entorno.
-
-### 5) Analitica e IA
-
-En el estado actual del backend no existe un microservicio independiente de analitica ni de IA en produccion dentro de Docker Compose.
+El monolito histórico `servicio-api/` quedó solo como referencia (`servicio-api/DEPRECATED.md`).
 
 ## Endpoints implementados
 
 ### Diagnostico
-- `GET /api/health`
+- `GET /api/health` (respuesta del gateway; cada microservicio también expone `/api/health` en su puerto interno)
 
 ### Autenticacion
 - `POST /api/auth/register`
@@ -107,13 +83,13 @@ En el estado actual del backend no existe un microservicio independiente de anal
 
 ## Archivos Docker a presentar
 
-- `docker-compose.yml`: orquestacion de servicios, red y volumen.
-- `Dockerfile`: build del frontend y despliegue en Nginx.
-- `nginx.conf`: proxy inverso de `/api` a `api-service`.
-- `servicio-api/Dockerfile`: contenedor del backend.
+- `docker-compose.yml`: gateway, 3 microservicios, 3 MySQL, frontend, red y volúmenes.
+- `gateway/`: Dockerfile + `nginx.conf` (API Gateway).
+- `Dockerfile`: build del frontend y Nginx del SPA.
+- `nginx.conf`: proxy del SPA hacia `gateway:80/api/`.
+- `servicio-usuarios/`, `servicio-tiendas/`, `servicio-catalogo/`: Dockerfile + `server.js` + `init-db/init.sql` cada uno.
 - `.dockerignore`: exclusiones de build.
-- `init-db/init.sql`: esquema/seed inicial de MySQL.
-- `.env`: variables de entorno (sin exponer secretos en la presentacion).
+- `.env` / `.env.example`: secretos y JWT; **no** subir `.env` real a Git.
 
 ## Datos del sistema
 
@@ -131,17 +107,17 @@ Datos criticos:
 
 ## Riesgos y mitigacion
 
-### Caida de MySQL
-**Impacto:** no se pueden leer ni persistir datos de negocio.  
-**Mitigacion:** volumen persistente, respaldos periodicos y manejo de errores en API.
+### Caida de una base MySQL
+**Impacto:** cae el dominio que usa esa BD (usuarios, tiendas o catálogo); el resto puede seguir parcialmente arriba.  
+**Mitigacion:** volúmenes por BD, healthchecks, respaldos y mensajes de error claros en API.
 
 ### Caida de Cloudinary
 **Impacto:** falla la subida/visualizacion de imagenes externas.  
 **Mitigacion:** validacion de configuracion, respuestas controladas y uso de imagenes por defecto.
 
-### Caida del backend API
-**Impacto:** el frontend no puede operar sobre datos dinamicos.  
-**Mitigacion:** `restart` en Compose, endpoint de health y monitoreo.
+### Caida de un microservicio o del gateway
+**Impacto:** las rutas enrutadas a ese servicio fallan; si cae el gateway, no hay entrada unificada a la API.  
+**Mitigacion:** `restart` en Compose, healthchecks y (en producción) réplicas y balanceo.
 
 ## Ejecucion local con Docker
 
@@ -160,7 +136,10 @@ docker compose up --build
 
 3. Abrir:
    - Frontend: `http://localhost:8080`
-   - API health: `http://localhost:8080/api/health`
+   - Health vía SPA: `http://localhost:8080/api/health`
+   - Gateway directo (Postman / dev): `http://localhost:3000/api/health`
+
+Desarrollo local sin Docker del frontend: el proxy de Vite (`vite.config.ts`) apunta a `http://127.0.0.1:3000` (gateway).
 
 ## Pruebas de API con Postman
 
