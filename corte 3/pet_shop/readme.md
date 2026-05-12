@@ -1,6 +1,6 @@
 # Laboratorio: Sistema que aprende a fallar
 
-## **FASE 1 ***
+## **FASE 1 **
 
 ### Procedimiento
 1. Servicio de mascotas funcionando normalmente
