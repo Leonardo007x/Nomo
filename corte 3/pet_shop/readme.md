@@ -14,15 +14,15 @@
 **¿Qué hace el sistema actualmente?**
 
 Sin implementar circuit breaker, el sistema:
-- ❌ **Insiste en conectar continuamente** al servicio caído
-- ❌ Cada petición genera un timeout o error de conexión
-- ❌ El cliente recibe errores 503 después de esperar (timeout x petición)
-- ❌ Consume recursos innecesarios en intentos condenados al fracaso
-- ❌ Si hay múltiples clientes, la carga se multiplica
+-  **Insiste en conectar continuamente** al servicio caído
+-  Cada petición genera un timeout o error de conexión
+-  El cliente recibe errores 503 después de esperar (timeout x petición)
+-  Consume recursos innecesarios en intentos condenados al fracaso
+-  Si hay múltiples clientes, la carga se multiplica
 
 **¿Se protege o insiste?**
 
-**Resultado: INSISTE** 🔴
+**Resultado: INSISTE** 
 - Sin protección contra cascadas de fallos
 - Sin protección contra sobrecarga al servicio caído
 - Sin mecanismo de recuperación automática
@@ -34,7 +34,7 @@ Sin implementar circuit breaker, el sistema:
 ### Decisiones de diseño
 
 #### **1. ¿Cada servicio debe tener su propio contador de fallos?**
-✅ **SÍ - Decidimos que cada servicio es independiente**
+ **SÍ - Decidimos que cada servicio es independiente**
 
 ```python
 circuitos = {
@@ -60,7 +60,7 @@ circuitos = {
 - Independencia en la recuperación
 
 #### **2. ¿El circuito debe abrirse de forma independiente por servicio?**
-✅ **SÍ**
+ **SÍ**
 
 Cada servicio tiene su propio estado:
 - `/usuarios` → circuito separado para servicio "usuarios"
@@ -92,10 +92,10 @@ else:
 
 | Endpoint | Servicio | Protección |
 |----------|----------|-----------|
-| `/usuarios` | usuarios | ✅ Circuit breaker independiente |
-| `/mascotas` | backend | ✅ Circuit breaker compartido |
-| `/mascotas/<id>` | backend | ✅ Circuit breaker compartido |
-| `/resumen` | ambos | ✅ Circuitos independientes |
+| `/usuarios` | usuarios | Circuit breaker independiente |
+| `/mascotas` | backend | Circuit breaker compartido |
+| `/mascotas/<id>` | backend | Circuit breaker compartido |
+| `/resumen` | ambos | Circuitos independientes |
 
 ---
 
@@ -112,8 +112,8 @@ OPEN (rechazando)
    ↓ (espera + timeout)
 HALF-OPEN (reintentando)
    ↓
-   ├─ ✅ Éxito → CLOSED
-   └─ ❌ Fallo → OPEN (reinicia)
+   ├─  Éxito → CLOSED
+   └─  Fallo → OPEN (reinicia)
 ```
 ![Descripción de la imagen](capturas/fase3.png)
 
@@ -142,9 +142,9 @@ def check_recovery_timeout(service):
 ```python
 if circuito["estado"] == CIRCUIT_HALF_OPEN:
     # ... intenta petición ...
-    print(f"[RECOVERY EXITOSA] {service}: circuito cerrado")  # ✅
+    print(f"[RECOVERY EXITOSA] {service}: circuito cerrado")  
     # O
-    print(f"[RECOVERY FALLIDA] {service}: circuito reabierto")  # ❌
+    print(f"[RECOVERY FALLIDA] {service}: circuito reabierto")  
     circuito["estado"] = CIRCUIT_OPEN
     circuito["tiempo_apertura"] = time.time()  # Reinicia timer
 ```
@@ -219,7 +219,7 @@ except Exception as e:
 
 ## **FASE 5 – VALIDAR (Escenarios)**
 
-### Escenario 1: Servicio funcionando ✅
+### Escenario 1: Servicio funcionando 
 
 **Comportamiento esperado:**
 - Estado: CLOSED
@@ -233,7 +233,7 @@ GET /mascotas
 ```
 ![Descripción de la imagen](capturas/fase5.png)
 
-### Escenario 2: Servicio caído ❌
+### Escenario 2: Servicio caído 
 
 **Comportamiento esperado:**
 - Fallo 1: Intenta, error, contador = 1
@@ -261,7 +261,7 @@ GET /mascotas (intento 4)
 ```
 ![Descripción de la imagen](capturas/fase5.2.png)
 
-### Escenario 3: Circuito abierto ⊗
+### Escenario 3: Circuito abierto 
 
 **Comportamiento esperado:**
 - Estado: OPEN
@@ -276,7 +276,7 @@ GET /mascotas
 ```
 ![Descripción de la imagen](capturas/fase5.3.png)
 
-### Escenario 4: Recuperación del servicio 🔄
+### Escenario 4: Recuperación del servicio 
 
 **Etapa 1: Esperando timeout (0-10 segundos)**
 ```
