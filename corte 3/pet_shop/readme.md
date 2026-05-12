@@ -34,7 +34,7 @@ Sin implementar circuit breaker, el sistema:
 ### Decisiones de diseño
 
 #### **1. ¿Cada servicio debe tener su propio contador de fallos?**
- **SÍ - Decidimos que cada servicio es independiente**
+ **SÍ - se define que cada servicio es independiente**
 
 ```python
 circuitos = {
@@ -134,7 +134,9 @@ def check_recovery_timeout(service):
 ```
 
 **Cuándo:** Después de **10 segundos** desde que se abrió el circuito
+
 **Cómo:** En el siguiente request que arrive después de los 10s
+
 **Quién:** El cliente que intenta la petición
 
 ### ¿Qué pasa si el servicio vuelve a fallar?
@@ -164,7 +166,6 @@ TIMEOUT_RECUPERACION = 10  # segundos
 **Decisión tomada:** 10 segundos de espera antes de reintentar
 - Suficiente para que un servicio se reinicie
 - No tan largo para afectar la experiencia del usuario
-- Configurable según necesidades
 
 ### Nuevo intento de conexión
 
