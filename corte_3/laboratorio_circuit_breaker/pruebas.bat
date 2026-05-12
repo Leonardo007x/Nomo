@@ -17,6 +17,9 @@ REM   pruebas.bat fase3     ejecuta solo la Fase 3
 REM   pruebas.bat fase4     ejecuta solo la Fase 4
 REM   pruebas.bat fase5     ejecuta solo la Fase 5
 REM   pruebas.bat reset     reinicia el gateway y vuelve a levantar todo
+REM
+REM  Cada fase (1-5) llama a :_CONDICIONES_LIMPIAS al inicio: stack arriba,
+REM  gateway reiniciado ^(estado del Circuit Breaker en memoria limpio^).
 REM =====================================================================
 
 setlocal EnableExtensions EnableDelayedExpansion
@@ -73,7 +76,6 @@ REM =====================================================================
 REM Ejecuta todas las fases en orden
 REM =====================================================================
 call :_HEADER "EJECUTANDO TODAS LAS FASES EN ORDEN"
-call :_LEVANTAR
 call :FASE1_BODY
 call :FASE2_BODY
 call :FASE3_BODY
@@ -105,12 +107,12 @@ REM =====================================================================
 REM  FASE 1: OBSERVAR
 REM =====================================================================
 :FASE1
-call :_LEVANTAR
 call :FASE1_BODY
 goto FIN
 
 :FASE1_BODY
 call :_HEADER "FASE 1 - OBSERVAR"
+call :_CONDICIONES_LIMPIAS
 echo Objetivo:
 echo  - Apagar el servicio de mascotas
 echo  - Hacer varias peticiones al gateway
@@ -164,12 +166,12 @@ REM =====================================================================
 REM  FASE 2: APLICAR (Circuit Breaker en todos los endpoints)
 REM =====================================================================
 :FASE2
-call :_LEVANTAR
 call :FASE2_BODY
 goto FIN
 
 :FASE2_BODY
 call :_HEADER "FASE 2 - APLICAR (Circuit Breaker en multiples endpoints)"
+call :_CONDICIONES_LIMPIAS
 echo Objetivo:
 echo  - Verificar que el Circuit Breaker funciona en /mascotas Y /usuarios
 echo  - Demostrar AISLAMIENTO: si uno falla, el otro sigue
@@ -177,12 +179,7 @@ echo.
 pause
 
 echo.
-echo [1/5] Asegurando que ambos servicios esten arriba...
-docker compose start backend usuarios
-call :_ESPERAR_BACKEND_OK
-
-echo.
-echo [2/5] Probando ambos endpoints SANOS (+ /resumen agregador):
+echo [1/4] Probando endpoints SANOS ^(+ /resumen^). Stack ya reiniciado al inicio de esta fase.
 echo --- /mascotas ---
 curl.exe -i -s -o - -w "\nHTTP_STATUS=%%{http_code}\n" %GATEWAY%/mascotas
 echo.
@@ -195,11 +192,11 @@ echo.
 pause
 
 echo.
-echo [3/5] Apagando SOLO el servicio backend ^(mascotas^)...
+echo [2/4] Apagando SOLO el servicio backend ^(mascotas^)...
 docker compose stop backend
 echo.
 
-echo [4/5] Atacando /mascotas para abrir SU circuito ^(4 intentos^):
+echo [3/4] Atacando /mascotas para abrir SU circuito ^(4 intentos^):
 for /L %%i in (1,1,4) do (
     echo --- Intento %%i a /mascotas ---
     curl.exe -i -s -o - -w "\nHTTP_STATUS=%%{http_code}\n" %GATEWAY%/mascotas
@@ -207,7 +204,7 @@ for /L %%i in (1,1,4) do (
 )
 echo.
 
-echo [5/5] Verificando que /usuarios SIGUE funcionando ^(aislamiento^):
+echo [4/4] Verificando que /usuarios SIGUE funcionando ^(aislamiento^):
 curl.exe -i -s -o - -w "\nHTTP_STATUS=%%{http_code}\n" %GATEWAY%/usuarios
 echo.
 
@@ -238,12 +235,12 @@ REM =====================================================================
 REM  FASE 3: INVESTIGAR (Half-Open)
 REM =====================================================================
 :FASE3
-call :_LEVANTAR
 call :FASE3_BODY
 goto FIN
 
 :FASE3_BODY
 call :_HEADER "FASE 3 - INVESTIGAR (Half-Open)"
+call :_CONDICIONES_LIMPIAS
 echo Esta fase es teorica. Aqui solo se muestra el estado actual y un
 echo recordatorio de lo investigado ^(la explicacion completa va en README^).
 echo.
@@ -281,12 +278,12 @@ REM =====================================================================
 REM  FASE 4: IMPLEMENTAR (Recuperacion)
 REM =====================================================================
 :FASE4
-call :_LEVANTAR
 call :FASE4_BODY
 goto FIN
 
 :FASE4_BODY
 call :_HEADER "FASE 4 - IMPLEMENTAR (Recuperacion con half-open)"
+call :_CONDICIONES_LIMPIAS
 echo Objetivo:
 echo  - Ver la secuencia CLOSED ==^> OPEN ==^> HALF-OPEN ==^> ^(OPEN o CLOSED^)
 echo  - Espera controlada de 10s ^(TIEMPO_RECUPERACION_SEGUNDOS^)
@@ -294,16 +291,11 @@ echo.
 pause
 
 echo.
-echo [1/6] Reiniciando gateway para limpiar estado en memoria...
-docker compose restart gateway
-timeout /t 3 /nobreak >nul
-
-echo.
-echo [2/6] Apagando backend ^(mascotas^)...
+echo [1/5] Apagando backend ^(mascotas^). El gateway ya arranco limpio al inicio de esta fase.
 docker compose stop backend
 echo.
 
-echo [3/6] Provocando 4 fallos para ABRIR el circuito de /mascotas:
+echo [2/5] Provocando 4 fallos para ABRIR el circuito de /mascotas:
 for /L %%i in (1,1,4) do (
     echo --- Intento %%i ---
     curl.exe -i -s -o - -w "\nHTTP_STATUS=%%{http_code}\n" %GATEWAY%/mascotas
@@ -311,18 +303,18 @@ for /L %%i in (1,1,4) do (
 )
 
 echo.
-echo [4/6] Esperando 11 segundos para que el circuito pase a HALF-OPEN...
+echo [3/5] Esperando 11 segundos para que el circuito pase a HALF-OPEN...
 timeout /t 11 /nobreak
 
 echo.
-echo [5/6] CASO A - Servicio AUN caido. Deberia volver a OPEN.
+echo [4/5] CASO A - Servicio AUN caido. Deberia volver a OPEN.
 curl.exe -i -s -o - -w "\nHTTP_STATUS=%%{http_code}\n" %GATEWAY%/mascotas
 echo.
 echo Esperamos otros 11 segundos para el siguiente HALF-OPEN...
 timeout /t 11 /nobreak
 
 echo.
-echo [6/6] CASO B - Levantamos backend y probamos. Deberia CERRAR.
+echo [5/5] CASO B - Levantamos backend y probamos. Deberia CERRAR.
 docker compose start backend
 call :_ESPERAR_BACKEND_OK
 call :_ESPERAR_GATEWAY_MASCOTAS_200
@@ -362,12 +354,12 @@ REM =====================================================================
 REM  FASE 5: VALIDAR (4 escenarios)
 REM =====================================================================
 :FASE5
-call :_LEVANTAR
 call :FASE5_BODY
 goto FIN
 
 :FASE5_BODY
 call :_HEADER "FASE 5 - VALIDAR (4 escenarios)"
+call :_CONDICIONES_LIMPIAS
 echo Escenarios:
 echo  1^) Servicio funcionando
 echo  2^) Servicio caido
@@ -460,11 +452,25 @@ echo  %~1
 echo =====================================================
 exit /b 0
 
-:_LEVANTAR
-echo Verificando que los servicios esten arriba...
-docker compose up -d >nul 2>&1
-timeout /t 3 /nobreak >nul
-docker compose ps
+
+REM Al inicio de cada FASE (1-5): stack arriba, memoria del gateway limpia (circuitos en CLOSED).
+:_CONDICIONES_LIMPIAS
+echo.
+echo .....................................................
+echo  REINICIO DE FASE: condiciones limpias
+echo .....................................................
+echo [reset] docker compose up -d ^(db, backend, usuarios, gateway^)...
+docker compose up -d
+timeout /t 2 /nobreak >nul
+echo [reset] Asegurando backend y usuarios...
+docker compose start backend usuarios 2>nul
+timeout /t 1 /nobreak >nul
+call :_ESPERAR_BACKEND_OK
+echo [reset] Reiniciando gateway ^(estado del Circuit Breaker en RAM = limpio^)...
+docker compose restart gateway
+timeout /t 2 /nobreak >nul
+call :_ESPERAR_GATEWAY_MASCOTAS_200
+echo [reset] Listo: puedes ejecutar los pasos de esta fase desde baseline conocido.
 echo.
 exit /b 0
 

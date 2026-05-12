@@ -263,12 +263,7 @@ El gateway dejó de depender de fallos continuos para colapsar y ahora aplica pr
 
 Variables de entorno: copia `.env.example` a `.env` en esta carpeta (el `.env` real no se versiona).
 
-Ejecuta `pruebas.bat` **desde la carpeta** `laboratorio_circuit_breaker` (es donde vive `docker-compose.yml`). El script incluye esperas activas a:
-
-- `http://localhost:5002/mascotas` (backend ya con MySQL listo),
-- `http://localhost:5000/mascotas` (gateway en 200 tras recuperación),
-
-para evitar 503 falsos por arranque lento del contenedor.
+Ejecuta `pruebas.bat` **desde la carpeta** `laboratorio_circuit_breaker` (es donde vive `docker-compose.yml`). **Cada fase (1–5)** ejecuta al inicio un reinicio de condiciones: `docker compose up -d`, servicios arriba, **`docker compose restart gateway`** (memoria del breaker limpia) y esperas activas hasta HTTP 200 en `http://localhost:5002/mascotas` (backend con MySQL listo) y en `http://localhost:5000/mascotas` (gateway), para evitar 503 falsos por arranque lento y para que cada fase arranque desde el mismo baseline aunque ejecutes `all` o fases sueltas.
 
 ```powershell
 docker compose up -d --build
