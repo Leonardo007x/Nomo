@@ -1,0 +1,4 @@
+[tool.basedpyright]
+# Entorno de análisis para imports (Flask en gateway, mysql en backend, etc.)
+venvPath = "."
+venv = ".venv"

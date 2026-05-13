@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leen - Plataforma de Lectura</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #eee;
+            padding: 2rem;
+        }
+        .contenedor {
+            max-width: 750px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: #e94560;
+        }
+        .subtitulo {
+            opacity: 0.85;
+            font-size: 1rem;
+        }
+        .estados {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+        .estado {
+            background: rgba(255,255,255,0.08);
+            padding: 0.75rem 1.25rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .estado.ok { color: #4ecca3; border-left: 4px solid #4ecca3; }
+        .estado.error { color: #e94560; border-left: 4px solid #e94560; }
+        .estado.cargando { color: #ffc93c; border-left: 4px solid #ffc93c; }
+        .estado .icono { font-size: 1.2rem; }
+        h2 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: #e94560;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .libros {
+            display: grid;
+            gap: 1rem;
+        }
+        .libro {
+            background: rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: transform 0.2s, background 0.2s;
+        }
+        .libro:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateX(4px);
+        }
+        .libro-numero {
+            width: 38px;
+            height: 38px;
+            background: #e94560;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+        .libro-info {
+            flex: 1;
+        }
+        .libro-info h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+            line-height: 1.3;
+        }
+        .libro-info .autor {
+            font-size: 0.9rem;
+            opacity: 0.85;
+            color: #4ecca3;
+        }
+        .badge {
+            display: inline-block;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+            background: rgba(233, 69, 96, 0.3);
+            color: #e94560;
+            margin-top: 0.4rem;
+        }
+        .sin-libros, .error-bd {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            opacity: 0.9;
+        }
+        .pie {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.85rem;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="contenedor">
+        <header>
+            <h1>📚 Leen</h1>
+            <p class="subtitulo">Plataforma de lectura y recomendación de libros</p>
+        </header>
+
+        <div class="estados">
+            <div id="estado-api" class="estado cargando">
+                <span class="icono">⏳</span>
+                <span>API: verificando...</span>
+            </div>
+            <div id="estado-bd" class="estado cargando">
+                <span class="icono">⏳</span>
+                <span>Base de datos: verificando...</span>
+            </div>
+        </div>
+
+        <section>
+            <h2>📖 Catálogo de libros</h2>
+            <div id="libros" class="libros">
+                <div class="estado cargando" style="justify-content: center;">Cargando libros...</div>
+            </div>
+        </section>
+
+        <p class="pie">Sistema distribuido • Docker Compose • Leen</p>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000';
+        const AUTORES_COLOMBIA = ['García Márquez', 'Eustasio Rivera', 'Jorge Isaacs', 'Laura Restrepo', 'Abad Faciolince'];
+
+        function escaparHtml(texto) {
+            const div = document.createElement('div');
+            div.textContent = texto;
+            return div.innerHTML;
+        }
+
+        function esColombiano(autor) {
+            return autor && AUTORES_COLOMBIA.some(a => autor.includes(a));
+        }
+
+        // Verificar estado de la API
+        fetch(API_URL + '/api/estado')
+            .then(r => r.json())
+            .then(d => {
+                const el = document.getElementById('estado-api');
+                el.innerHTML = '<span class="icono">✓</span><span>API: ' + escaparHtml(d.mensaje || 'Conectada') + '</span>';
+                el.className = 'estado ok';
+            })
+            .catch(() => {
+                const el = document.getElementById('estado-api');
+                el.innerHTML = '<span class="icono">✗</span><span>API: No conectada</span>';
+                el.className = 'estado error';
+            });
+
+        // Cargar libros y verificar BD
+        fetch(API_URL + '/api/libros')
+            .then(r => r.json())
+            .then(d => {
+                const elBd = document.getElementById('estado-bd');
+                const elLibros = document.getElementById('libros');
+
+                if (d.error) {
+                    elBd.innerHTML = '<span class="icono">✗</span><span>BD: ' + escaparHtml(d.error) + '</span>';
+                    elBd.className = 'estado error';
+                    elLibros.innerHTML = '<div class="error-bd">No se pudo conectar a la base de datos. Verifica que MySQL esté iniciado.</div>';
+                } else {
+                    elBd.innerHTML = '<span class="icono">✓</span><span>BD: Conectada (' + (d.libros?.length || 0) + ' libros)</span>';
+                    elBd.className = 'estado ok';
+
+                    if (!d.libros || d.libros.length === 0) {
+                        elLibros.innerHTML = '<div class="sin-libros">No hay libros en el catálogo.</div>';
+                    } else {
+                        elLibros.innerHTML = d.libros.map((libro, i) => {
+                            const colombiano = esColombiano(libro.autor);
+                            return `
+                            <div class="libro">
+                                <div class="libro-numero">${i + 1}</div>
+                                <div class="libro-info">
+                                    <h3>${escaparHtml(libro.titulo)}</h3>
+                                    <span class="autor">${escaparHtml(libro.autor)}</span>
+                                    ${colombiano ? '<span class="badge">🇨🇴 Literatura colombiana</span>' : ''}
+                                </div>
+                            </div>
+                        `}).join('');
+                    }
+                }
+            })
+            .catch(() => {
+                document.getElementById('estado-bd').innerHTML = '<span class="icono">✗</span><span>BD: Error al conectar</span>';
+                document.getElementById('estado-bd').className = 'estado error';
+                document.getElementById('libros').innerHTML = '<div class="error-bd">No se pudieron cargar los libros. Verifica que la API esté activa.</div>';
+            });
+    </script>
+</body>
+</html>

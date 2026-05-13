@@ -109,14 +109,14 @@ export const EditorProducto: React.FC<EditorProductoProps> = ({
 
         const numVal = parseInt(rawVal, 10);
         
-        // Limite duro de UI para no romper formato (opcional, esquema ya valida 200k)
-        if (numVal > 9999999) return; 
+        // Limite duro de UI para mantener coherencia con validación de esquema
+        if (numVal > 5000000) return; 
 
         // Formatear con puntos
         const formatted = numVal.toLocaleString('es-CO');
         setPrecioDisplay(formatted);
         setValue('precio', numVal);
-        trigger('precio'); // Disparar validación (min 1000, max 200000)
+        trigger('precio'); // Disparar validación (min 1000, max 5000000)
     };
 
     const onImageWrapperChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -205,7 +205,7 @@ export const EditorProducto: React.FC<EditorProductoProps> = ({
                             </div>
                         </div>
 
-                        {/* INGREDIENTES */}
+                        {/* CARACTERISTICAS */}
                         <div>
                              <label className="block text-sm font-medium text-text-muted mb-2 ml-1 flex justify-between items-center">
                                 <span>Características <span className="text-red-500">*</span> <span className="text-[10px] text-text-muted ml-2">(Letras y números)</span></span>
@@ -216,7 +216,7 @@ export const EditorProducto: React.FC<EditorProductoProps> = ({
                             <Textarea 
                                 value={caracteristicasTemp}
                                 onChange={(e) => handleCaracterísticasInput(e.target.value)}
-                                placeholder="Ingrediente 1, Ingrediente 2..."
+                                placeholder="Característica 1, Característica 2..."
                                 maxLength={LIMITES.INGREDIENTES}
                                 className={errors.caracteristicas ? "!border-red-500" : ""}
                             />
@@ -282,7 +282,7 @@ export const EditorProducto: React.FC<EditorProductoProps> = ({
                             </div>
                             <div className="flex justify-between text-[10px] text-text-muted mt-1 px-1">
                                 <span>Mín: 1.000</span>
-                                {errors.precio ? <span className="text-red-500 font-bold">{errors.precio.message}</span> : <span>Máx: 200.000</span>}
+                                {errors.precio ? <span className="text-red-500 font-bold">{errors.precio.message}</span> : <span>Máx: 5.000.000</span>}
                             </div>
                         </div>
 

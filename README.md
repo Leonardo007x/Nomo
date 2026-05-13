@@ -2,7 +2,9 @@
 
 Mercado Liebre es una plataforma para que pequeños negocios publiquen y administren su catalogo digital de forma rapida, con gestion de tienda, productos y configuracion visual.
 
-El proyecto implementa una arquitectura de servicios desplegada con Docker Compose, integrada por frontend, API backend y base de datos MySQL.
+El código principal de la aplicación está en la carpeta **`Mercado_Liebre/`**. Ahí vive el **README detallado**, `docker-compose.yml` y los microservicios.
+
+Arquitectura: **API Gateway (Nginx)** + microservicios Node (**usuarios**, **tiendas**, **catálogo**), cada uno con **su propio MySQL**, más frontend React en Nginx.
 
 ## Problema que resuelve
 
@@ -21,19 +23,9 @@ Mercado Liebre centraliza la administracion de tienda y productos, y expone una 
 
 ## Arquitectura implementada (actual)
 
-La solucion actual esta desplegada con Docker Compose y utiliza estos componentes:
+Ver **`Mercado_Liebre/README.md`** para diagrama de rutas, variables `.env` y lista de endpoints.
 
-- **Frontend**: aplicacion React/Vite servida con Nginx.
-- **API**: servicio Node.js + Express (`api-service`).
-- **Base de datos**: MySQL 8 (`db-service`).
-- **Media externa (opcional)**: Cloudinary para subida de imagenes.
-
-Flujo principal:
-
-1. El usuario accede al frontend en `http://localhost:8080`.
-2. Nginx enruta `/api/*` hacia `api-service:3000`.
-3. La API consulta/persiste datos en MySQL.
-4. Para imagenes, la API usa Cloudinary cuando esta configurado.
+Resumen: el navegador usa `http://localhost:8080`; las llamadas `/api/*` van del Nginx del frontend al **gateway** (`localhost:3000` desde el host) y este distribuye el tráfico a cada microservicio.
 
 ## Servicios existentes
 

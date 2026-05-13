@@ -1,18 +1,20 @@
 {
-  "name": "mercadoliebre-api",
+  "name": "mercadoliebre-media",
   "version": "1.0.0",
-  "description": "Backend API para sistemas distribuidos",
+  "description": "Microservicio de media (Cloudinary) con BD propia",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "bcryptjs": "^2.4.3",
     "cloudinary": "^2.5.1",
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.0",
-    "mysql2": "^3.9.7"
+    "mysql2": "^3.9.7",
+    "opossum": "^8.5.0",
+    "pino": "^9.9.0",
+    "pino-http": "^10.4.0"
   }
 }

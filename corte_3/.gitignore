@@ -1,0 +1,6 @@
+# Entorno local y secretos (no versionar)
+**/venv/
+**/.venv/
+**/.env
+**/__pycache__/
+*.py[cod]

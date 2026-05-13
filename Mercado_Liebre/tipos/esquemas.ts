@@ -80,7 +80,7 @@ export const ProductoSchema = z.object({
   
   precio: z.number()
     .min(1000, "El precio mínimo es $1.000")
-    .max(200000, "El precio máximo es $200.000"),
+    .max(5000000, "El precio máximo es $5.000.000"),
   
   categoria: z.string()
     .min(1, "Selecciona una categoría")
@@ -89,9 +89,9 @@ export const ProductoSchema = z.object({
   imagen_url: z.string().min(1, "La imagen es obligatoria"),
   
   caracteristicas: z.array(z.string())
-    .min(1, "Añade al menos un ingrediente")
+    .min(1, "Añade al menos una característica")
     .refine(items => items.every(i => /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]+$/.test(i)), {
-      message: "Los caracteristicas solo pueden contener letras y números"
+      message: "Las características solo pueden contener letras y números"
     }),
     
   visible: z.boolean().default(true),

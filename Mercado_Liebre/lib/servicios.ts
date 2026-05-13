@@ -81,19 +81,24 @@ const comprimirImagen = (file: File): Promise<File> => {
 };
 
 export const subirImagen = async (file: File): Promise<string> => {
-  const archivoOptimizado = await comprimirImagen(file);
-  const formData = new FormData();
-  formData.append('file', archivoOptimizado);
+  try {
+    const archivoOptimizado = await comprimirImagen(file);
+    const formData = new FormData();
+    formData.append('file', archivoOptimizado);
 
-  const response = await apiFetch('/media/upload', {
-    method: 'POST',
-    body: formData,
-  });
+    const response = await apiFetch('/media/upload', {
+      method: 'POST',
+      body: formData,
+    });
 
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    throw new Error(data.error || `Error al subir imagen (${response.status})`);
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(data.error || `Error al subir imagen (${response.status})`);
+    }
+    if (data.url) return data.url;
+    throw new Error(data.error || 'Error al subir imagen');
+  } catch (e) {
+    console.error('[subirImagen]', e);
+    throw e instanceof Error ? e : new Error(String(e));
   }
-  if (data.url) return data.url;
-  throw new Error(data.error || 'Error al subir imagen');
 };

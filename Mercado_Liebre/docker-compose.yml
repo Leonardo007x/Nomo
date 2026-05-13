@@ -1,66 +1,62 @@
-version: '3.9'
+# ==========================================================
+# Mercado Liebre — Docker Compose (microservicios + gateway)
+# ==========================================================
+# Diseño base:
+# - 1 API Gateway (Nginx) como entrada única.
+# - 1 Frontend SPA (Nginx).
+# - 6 microservicios de negocio (usuarios, tiendas, catálogo, media, categorías, IA).
+# - 6 bases MySQL separadas (database-per-service).
+# - 1 red interna compartida + volúmenes persistentes por dominio.
 
 services:
-  # 1. FRONTEND: Aplicación Vite compilada estáticamente en Nginx
-  frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: mercadoliebre_frontend
-    ports:
-      - "8080:80"
-    networks:
-      - mercadoliebre-net
-    depends_on:
-      - api-service
-    restart: always
+  # ==========================================================
+  # 1) BASES DE DATOS POR DOMINIO (database-per-service)
+  # ==========================================================
 
-  # 2. BACKEND: Microservicio Node.js API
-  api-service:
-    build:
-      context: ./servicio-api
-      dockerfile: Dockerfile
-    container_name: mercadoliebre_api
-    env_file:
-      - .env
-    environment:
-      - DB_HOST=${DB_HOST}
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - JWT_SECRET=${JWT_SECRET}
-      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
-      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
-      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
-    networks:
-      - mercadoliebre-net
-    depends_on:
-      db-service:
-        condition: service_healthy
-    expose:
-      - "3000" # Expuesto internamente para que Nginx rutee
-    restart: always
-
-  # 3. BASE DE DATOS: MySQL Desplegada
-  db-service:
+  # --- DB Usuarios ---
+  db-usuarios:
     image: mysql:8.0
-    container_name: mercadoliebre_db
+    container_name: mercadoliebre_db_usuarios
     env_file:
       - .env
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-    ports:
-      - "3306:3306"
+      MYSQL_DATABASE: ${MYSQL_DATABASE_USUARIOS}
+    volumes:
+      # Persistencia física de la data del dominio usuarios.
+      - usuarios_data:/var/lib/mysql
+      # Script de bootstrap (se ejecuta en primer arranque de esta BD).
+      - ./microservices/servicio-usuarios/init-db/init.sql:/docker-entrypoint-initdb.d/01-init.sql
     networks:
       - mercadoliebre-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-rootpassword}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 25s
+    restart: on-failure
+
+  # --- DB Tiendas ---
+  db-tiendas:
+    image: mysql:8.0
+    container_name: mercadoliebre_db_tiendas
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE_TIENDAS}
     volumes:
-      # Persistencia de datos en contenedor
-      - mysqldata:/var/lib/mysql
-      # Script de inicialización de tablas e inyección de datos (Bootstrap)
-      - ./init-db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      # Persistencia física de la data del dominio tiendas.
+      - tiendas_data:/var/lib/mysql
+      # Script de bootstrap del esquema tiendas/temas.
+      - ./microservices/servicio-tiendas/init-db/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+    networks:
+      - mercadoliebre-net
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
       interval: 5s
@@ -69,12 +65,318 @@ services:
       start_period: 25s
     restart: on-failure
 
+  # --- DB Catálogo ---
+  db-catalogo:
+    image: mysql:8.0
+    container_name: mercadoliebre_db_catalogo
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE_CATALOGO}
+    volumes:
+      # Persistencia física de la data del dominio catálogo.
+      - catalogo_data:/var/lib/mysql
+      # Script de bootstrap del esquema productos/categorías.
+      - ./microservices/servicio-catalogo/init-db/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+    networks:
+      - mercadoliebre-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 25s
+    restart: on-failure
+
+  # --- DB Media ---
+  db-media:
+    image: mysql:8.0
+    container_name: mercadoliebre_db_media
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE_MEDIA}
+    volumes:
+      - media_data:/var/lib/mysql
+      - ./microservices/servicio-media/init-db/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+    networks:
+      - mercadoliebre-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 25s
+    restart: on-failure
+
+  # --- DB Categorías ---
+  db-categorias:
+    image: mysql:8.0
+    container_name: mercadoliebre_db_categorias
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE_CATEGORIAS}
+    volumes:
+      - categorias_data:/var/lib/mysql
+      - ./microservices/servicio-categorias/init-db/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+    networks:
+      - mercadoliebre-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 25s
+    restart: on-failure
+
+  # --- DB IA ---
+  db-ia:
+    image: mysql:8.0
+    container_name: mercadoliebre_db_ia
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE_IA}
+    volumes:
+      - ia_data:/var/lib/mysql
+      - ./microservices/servicio-ia/init-db/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+    networks:
+      - mercadoliebre-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 25s
+    restart: on-failure
+
+  # ==========================================================
+  # 2) MICROSERVICIOS DE NEGOCIO
+  # ==========================================================
+
+  # --- Servicio de usuarios y autenticación ---
+  usuarios-service:
+    build:
+      context: ./microservices/servicio-usuarios
+      dockerfile: Dockerfile
+    container_name: mercadoliebre_usuarios
+    env_file:
+      - .env
+    environment:
+      # Puerto interno del servicio (no expuesto al host).
+      PORT: "${USUARIOS_SERVICE_PORT}"
+      # Host de su BD dedicada dentro de la red Docker.
+      DB_HOST: db-usuarios
+      # Cada servicio apunta a su propia base lógica.
+      MYSQL_DATABASE: ${MYSQL_DATABASE_USUARIOS}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+    networks:
+      - mercadoliebre-net
+    depends_on:
+      db-usuarios:
+        condition: service_healthy
+    restart: always
+
+  # --- Servicio de tiendas y temas ---
+  tiendas-service:
+    build:
+      context: ./microservices/servicio-tiendas
+      dockerfile: Dockerfile
+    container_name: mercadoliebre_tiendas
+    env_file:
+      - .env
+    environment:
+      PORT: "${TIENDAS_SERVICE_PORT}"
+      DB_HOST: db-tiendas
+      MYSQL_DATABASE: ${MYSQL_DATABASE_TIENDAS}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      # Secreto compartido para llamadas internas servicio-a-servicio.
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN:-ml_internal_shared_secret_dev_only}
+      # URL interna hacia catálogo para componer vista pública.
+      CATALOGO_SERVICE_URL: http://catalogo-service:${CATALOGO_SERVICE_PORT}
+    networks:
+      - mercadoliebre-net
+    depends_on:
+      db-tiendas:
+        condition: service_healthy
+    restart: always
+
+  # --- Servicio de catálogo (productos) ---
+  catalogo-service:
+    build:
+      context: ./microservices/servicio-catalogo
+      dockerfile: Dockerfile
+    container_name: mercadoliebre_catalogo
+    env_file:
+      - .env
+    environment:
+      PORT: "${CATALOGO_SERVICE_PORT}"
+      DB_HOST: db-catalogo
+      MYSQL_DATABASE: ${MYSQL_DATABASE_CATALOGO}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN:-ml_internal_shared_secret_dev_only}
+      # URL interna hacia tiendas para validar ownership de tienda.
+      TIENDAS_SERVICE_URL: http://tiendas-service:${TIENDAS_SERVICE_PORT}
+    networks:
+      - mercadoliebre-net
+    depends_on:
+      db-catalogo:
+        condition: service_healthy
+    restart: always
+
+  # --- Servicio de media (Cloudinary + trazabilidad) ---
+  media-service:
+    build:
+      context: ./microservices/servicio-media
+      dockerfile: Dockerfile
+    container_name: mercadoliebre_media
+    env_file:
+      - .env
+    environment:
+      PORT: "${MEDIA_SERVICE_PORT}"
+      DB_HOST: db-media
+      MYSQL_DATABASE: ${MYSQL_DATABASE_MEDIA}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+    networks:
+      - mercadoliebre-net
+    depends_on:
+      db-media:
+        condition: service_healthy
+    restart: always
+
+  # --- Servicio de categorías ---
+  categorias-service:
+    build:
+      context: ./microservices/servicio-categorias
+      dockerfile: Dockerfile
+    container_name: mercadoliebre_categorias
+    env_file:
+      - .env
+    environment:
+      PORT: "${CATEGORIAS_SERVICE_PORT}"
+      DB_HOST: db-categorias
+      MYSQL_DATABASE: ${MYSQL_DATABASE_CATEGORIAS}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN:-ml_internal_shared_secret_dev_only}
+      TIENDAS_SERVICE_URL: http://tiendas-service:${TIENDAS_SERVICE_PORT}
+    networks:
+      - mercadoliebre-net
+    depends_on:
+      db-categorias:
+        condition: service_healthy
+    restart: always
+
+  # --- Servicio de IA (Groq) ---
+  ia-service:
+    build:
+      context: ./microservices/servicio-ia
+      dockerfile: Dockerfile
+    container_name: mercadoliebre_ia
+    env_file:
+      - .env
+    environment:
+      PORT: "${IA_SERVICE_PORT}"
+      DB_HOST: db-ia
+      MYSQL_DATABASE: ${MYSQL_DATABASE_IA}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      GROQ_MODEL: ${GROQ_MODEL:-llama-3.3-70b-versatile}
+    networks:
+      - mercadoliebre-net
+    depends_on:
+      db-ia:
+        condition: service_healthy
+    restart: always
+
+  # ==========================================================
+  # 3) CAPA DE ENTRADA
+  # ==========================================================
+
+  # --- API Gateway (Nginx) ---
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    container_name: mercadoliebre_gateway
+    ports:
+      # Puerto público del API Gateway para clientes/Front/Vite proxy.
+      - "${GATEWAY_HOST_PORT}:80"
+    networks:
+      - mercadoliebre-net
+    depends_on:
+      - usuarios-service
+      - tiendas-service
+      - catalogo-service
+      - media-service
+      - categorias-service
+      - ia-service
+    restart: always
+
+  # --- Frontend SPA (Nginx) ---
+  # Consume API vía /api -> gateway.
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mercadoliebre_frontend
+    ports:
+      - "${FRONTEND_HOST_PORT}:80"
+    networks:
+      - mercadoliebre-net
+    depends_on:
+      - gateway
+    restart: always
+
 volumes:
-  # Volumen para persistir los datos de MySQL
-  mysqldata:
+  # ==========================================================
+  # 4) VOLÚMENES PERSISTENTES
+  # ==========================================================
+  # Mantienen los datos aunque se recree un contenedor.
+  usuarios_data:
+    driver: local
+  tiendas_data:
+    driver: local
+  catalogo_data:
+    driver: local
+  media_data:
+    driver: local
+  categorias_data:
+    driver: local
+  ia_data:
     driver: local
 
 networks:
-  # Red virtual explícita entre contenedores
+  # ==========================================================
+  # 5) RED INTERNA
+  # ==========================================================
+  # Red bridge única para comunicación service-to-service por nombre.
   mercadoliebre-net:
     driver: bridge

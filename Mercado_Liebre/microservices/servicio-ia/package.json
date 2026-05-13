@@ -1,0 +1,18 @@
+{
+  "name": "mercadoliebre-ia",
+  "version": "1.0.0",
+  "description": "Microservicio de IA (Groq) con BD propia",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.9.7",
+    "opossum": "^8.5.0",
+    "pino": "^9.9.0",
+    "pino-http": "^10.4.0"
+  }
+}

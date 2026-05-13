@@ -6,7 +6,8 @@ COPY package.json ./
 RUN npm install --omit=dev
 
 COPY server.js ./
+COPY lib ./lib
 
-EXPOSE 3000
+EXPOSE 3004
 
 CMD ["node", "server.js"]
