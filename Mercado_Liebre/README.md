@@ -38,7 +38,7 @@ Muchos negocios no tienen sitio propio, dependen de herramientas genéricas o re
 
 ### Alcance actual del proyecto
 
-- Arquitectura de microservicios **funcional** en Docker (no simulada).
+- Arquitectura de microservicios **funcional** en Docker.
 - Comunicación HTTP entre servicios (tiendas ↔ catálogo ↔ categorías).
 - Persistencia con volúmenes Docker y una BD MySQL por dominio.
 - Circuit breaker, health checks, logs estructurados y balanceo round-robin en usuarios (2 réplicas).
@@ -72,7 +72,6 @@ flowchart TB
     M["media-service :3004"]
     CAT["categorias-service :3005"]
     IA["ia-service :3006"]
-    OPS["ops-service :3007\n(sin puerto host)"]
 
     DBU[("db-usuarios\nMySQL :3306")]
     DBT[("db-tiendas\nMySQL :3306")]
@@ -92,7 +91,7 @@ flowchart TB
   FE -->|"/api/* → gateway:80"| GW
 
   GW --> U1 & U2
-  GW --> T & C & M & CAT & IA & OPS
+  GW --> T & C & M & CAT & IA
 
   U1 & U2 --> DBU
   T --> DBT
@@ -107,9 +106,6 @@ flowchart TB
 
   M --> CL
   IA --> GQ
-
-  OPS -.->|"health-summary, logs"| GW
-  OPS -.->|"docker.sock"| DockerEngine["Motor Docker"]
 ```
 
 ### Tabla de puertos y exposición
