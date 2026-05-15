@@ -1,12 +1,13 @@
 {
   "name": "mercadoliebre-usuarios",
   "version": "1.0.0",
-  "description": "Microservicio de usuarios y autenticación (JWT)",
-  "main": "server.js",
+  "description": "Microservicio de usuarios y autenticación (JWT, breaker sobre MySQL)",
+  "main": "src/index.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node src/index.js"
   },
   "dependencies": {
+    "@mercadoliebre/resilience": "file:./packages/resilience",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "express": "^4.19.2",

@@ -1,12 +1,13 @@
 {
   "name": "mercadoliebre-categorias",
   "version": "1.0.0",
-  "description": "Microservicio de categorías con BD propia",
-  "main": "server.js",
+  "description": "Microservicio de categorías (BD propia, ownership vía tiendas + breaker)",
+  "main": "src/index.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node src/index.js"
   },
   "dependencies": {
+    "@mercadoliebre/resilience": "file:./packages/resilience",
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",

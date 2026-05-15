@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mercado Liebre — Panel de operaciones</title>
+  <style>
+    :root { --bg: #0f1419; --card: #1a2332; --text: #e7ecf3; --muted: #8b9bb4; --accent: #3483fa; --ok: #00a650; --warn: #f59e0b; --err: #ef4444; }
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 1rem 1.25rem 2rem; line-height: 1.45; }
+    h1 { font-size: 1.25rem; margin: 0 0 0.5rem; }
+    p.sub { color: var(--muted); font-size: 0.85rem; margin: 0 0 1.25rem; max-width: 52rem; }
+    .row { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-end; margin-bottom: 1rem; }
+    label { font-size: 0.75rem; color: var(--muted); display: block; margin-bottom: 0.25rem; }
+    input[type="password"], input[type="text"], select { background: var(--card); border: 1px solid #2a3a52; color: var(--text); padding: 0.5rem 0.65rem; border-radius: 6px; min-width: 12rem; }
+    button { background: var(--accent); color: #fff; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 600; }
+    button.secondary { background: #2a3a52; }
+    button.danger { background: var(--err); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    section { background: var(--card); border-radius: 10px; padding: 1rem; margin-bottom: 1rem; border: 1px solid #243044; }
+    section h2 { margin: 0 0 0.75rem; font-size: 1rem; }
+    pre { background: #0a0e14; padding: 0.75rem; border-radius: 8px; overflow: auto; max-height: 22rem; font-size: 0.72rem; border: 1px solid #1e2838; white-space: pre-wrap; word-break: break-word; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    th, td { text-align: left; padding: 0.4rem 0.5rem; border-bottom: 1px solid #243044; }
+    th { color: var(--muted); font-weight: 600; }
+    .pill { display: inline-block; padding: 0.15rem 0.45rem; border-radius: 4px; font-size: 0.7rem; font-weight: 700; }
+    .pill.up { background: #0d3d24; color: #4ade80; }
+    .pill.down { background: #3d0d0d; color: #f87171; }
+    .errbox { color: #fecaca; font-size: 0.85rem; margin-top: 0.5rem; }
+    .grid { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+    .svc-card h3 { margin: 0 0 0.35rem; font-size: 0.85rem; text-transform: capitalize; }
+    .svc-card .st { font-size: 0.72rem; color: var(--muted); }
+    .notice { background: #2a2410; border: 1px solid var(--warn); color: #fde68a; padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.82rem; margin-bottom: 1rem; max-width: 52rem; }
+    .notice code { background: #1a1508; padding: 0.1rem 0.35rem; border-radius: 4px; }
+    .seg { display: inline-flex; gap: 0.35rem; flex-wrap: wrap; align-items: center; }
+    .seg button, .seg label { font-size: 0.75rem; padding: 0.35rem 0.65rem; }
+    .seg label { color: var(--muted); margin: 0; }
+    .pill-br { display: inline-block; padding: 0.12rem 0.4rem; border-radius: 4px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; }
+    .pill-br.closed { background: #0d3d24; color: #86efac; }
+    .pill-br.open { background: #5c1010; color: #fca5a5; }
+    .pill-br.half_open { background: #422006; color: #fcd34d; }
+    .pill-br.unknown { background: #2a3a52; color: var(--muted); }
+    #logPretty { background: #0a0e14; padding: 0.5rem 0.65rem; border-radius: 8px; overflow: auto; max-height: 22rem; font-size: 0.72rem; border: 1px solid #1e2838; display: none; }
+    .log-entry { border-bottom: 1px solid #1e2838; padding: 0.45rem 0; }
+    .log-entry:last-child { border-bottom: none; }
+    .log-meta { color: var(--muted); font-size: 0.68rem; margin-bottom: 0.2rem; }
+    .log-msg { color: var(--text); word-break: break-word; }
+    .log-entry details { margin-top: 0.35rem; }
+    .log-entry details summary { cursor: pointer; color: var(--accent); font-size: 0.68rem; }
+    .log-entry pre { margin: 0.35rem 0 0; font-size: 0.65rem; background: #06080c; padding: 0.5rem; border-radius: 6px; overflow: auto; max-height: 10rem; white-space: pre-wrap; }
+    .log-plain { white-space: pre-wrap; word-break: break-word; }
+    #logDigest { background: #0a0e14; padding: 0.65rem 0.85rem; border-radius: 8px; overflow: auto; max-height: 22rem; font-size: 0.78rem; border: 1px solid #1e2838; display: none; }
+    .digest-row { border-bottom: 1px solid #1e2838; padding: 0.55rem 0; }
+    .digest-row:last-child { border-bottom: none; }
+    .digest-tag { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; color: var(--accent); letter-spacing: 0.04em; margin-bottom: 0.2rem; }
+    .digest-tag.err { color: var(--err); }
+    .digest-tag.ok { color: var(--ok); }
+    .digest-head { font-weight: 600; color: var(--text); margin-bottom: 0.2rem; }
+    .digest-body { color: var(--muted); font-size: 0.72rem; white-space: pre-wrap; word-break: break-word; }
+    .digest-hint { color: #93c5fd; font-size: 0.7rem; margin-top: 0.35rem; font-style: italic; }
+    details.log-help { margin: 0 0 0.75rem; max-width: 52rem; border: 1px solid #2a3a52; border-radius: 8px; padding: 0.5rem 0.75rem; background: #121a26; }
+    details.log-help summary { cursor: pointer; color: var(--accent); font-weight: 600; font-size: 0.85rem; }
+    details.log-help .help-inner { margin-top: 0.65rem; color: var(--muted); font-size: 0.8rem; line-height: 1.5; }
+    details.log-help code { background: #0a0e14; padding: 0.08rem 0.35rem; border-radius: 4px; font-size: 0.76rem; }
+    details.log-help ol { margin: 0.35rem 0 0 1.1rem; padding: 0; }
+    .lab-grid { display: grid; gap: 0.65rem; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+    .lab-svc { background: #121a26; border: 1px solid #2a3a52; border-radius: 8px; padding: 0.55rem 0.65rem; }
+    .lab-actions { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.45rem; }
+    .lab-actions button { font-size: 0.7rem; padding: 0.3rem 0.55rem; }
+    .lab-cmd-details { margin-top: 0.5rem; }
+    .lab-cmd-details summary { cursor: pointer; color: var(--accent); font-size: 0.72rem; font-weight: 600; }
+    .lab-cmd-pre { margin: 0.35rem 0 0; padding: 0.45rem 0.5rem; font-size: 0.62rem; line-height: 1.35; max-height: 9rem; overflow: auto; background: #0a0e14; border: 1px solid #1e2838; border-radius: 6px; white-space: pre-wrap; word-break: break-all; }
+    .lab-copy-cmd { font-size: 0.65rem; padding: 0.2rem 0.45rem; margin-top: 0.35rem; }
+    #logQuickBtns { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+    #inlineLogPanel { display: none; margin-top: 0.5rem; max-height: 14rem; }
+  </style>
+</head>
+<body>
+  <h1>Panel de operaciones (real)</h1>
+  <div class="notice" role="note">
+    <strong>Puerto correcto:</strong> en Docker Compose el front suele publicarse en <code>:8280</code> y el gateway en <code>:3000</code>.
+    <code>http://localhost/ops-panel/</code> usa el puerto <strong>80</strong>; si no mapeaste el 80 en <code>.env</code>, verás <em>connection refused</em>.
+    Usá por ejemplo <code>http://localhost:8280/ops-panel/</code> o <code>http://localhost:3000/ops-panel/</code> (según <code>FRONTEND_HOST_PORT</code> / <code>GATEWAY_HOST_PORT</code>).
+  </div>
+  <p class="sub">
+    Health y circuit breakers se leen por HTTP al gateway interno. Los logs son salida real de <code>docker logs</code>.
+    Apagar una base o un microservicio ejecuta la API de Docker sobre el socket montado (equivalente a <code>docker stop</code>).
+    Definí <code>OPS_PANEL_TOKEN</code> en tu <code>.env</code> y pegalo abajo.
+  </p>
+
+  <details style="margin-bottom:0.5rem;max-width:52rem">
+    <summary style="cursor:pointer;color:var(--muted);font-size:0.85rem">Token (opcional, ya precargado)</summary>
+    <div class="row" style="margin-top:0.5rem">
+      <div><label for="token">OPS_PANEL_TOKEN</label><input type="text" id="token" autocomplete="off" /></div>
+      <button type="button" id="btnSave">Guardar</button>
+    </div>
+    <div id="authErr" class="errbox" style="display:none"></div>
+  </details>
+
+  <section>
+    <h2>Laboratorio — circuit breaker (real)</h2>
+    <p class="sub" style="margin-top:0">Abrir / Semiabierto / Cerrar llaman a Opossum en el microservicio. En cada tarjeta: <strong>Comandos consola</strong> para ejecutar lo mismo desde PowerShell. Escenarios = Docker + HTTP real.</p>
+    <div id="labBreakerControls" class="lab-grid"></div>
+    <div id="labMsg" class="errbox" style="display:none;margin-top:0.5rem"></div>
+    <div class="row" style="margin-top:0.75rem">
+      <div style="flex:1;min-width:14rem"><label for="labScenario">Escenario</label><select id="labScenario" style="width:100%"></select></div>
+      <button type="button" id="btnRunScenario">Ejecutar</button>
+    </div>
+    <pre id="labScenarioOut" style="margin-top:0.5rem;max-height:10rem"></pre>
+    <p class="sub" style="margin:0.35rem 0">Comandos del escenario seleccionado (solo ese caso):</p>
+    <div class="row">
+      <button type="button" class="secondary" id="btnReloadCommands">Actualizar comandos</button>
+      <button type="button" class="secondary" id="btnCopyCommands" disabled>Copiar comandos del escenario</button>
+    </div>
+    <pre id="labCommandsPre" style="margin-top:0.5rem;max-height:12rem;font-size:0.68rem">Elegí un escenario para ver sus comandos.</pre>
+  </section>
+
+  <section>
+    <h2>Balanceo de carga — usuarios (2 réplicas)</h2>
+    <p class="sub" style="margin-top:0">
+      <strong>Opción 1 + 2 + 4:</strong> dos instancias de <code>usuarios-service</code> detrás del gateway Nginx (round-robin).
+      Login, registro y <code>/api/health/usuarios</code> se reparten. Cada réplica expone <code>instance_id</code> en el health.
+    </p>
+    <div class="row">
+      <div style="min-width:8rem">
+        <label for="lbRequests">Peticiones de prueba</label>
+        <input type="number" id="lbRequests" min="10" max="200" value="40" style="width:5rem" />
+      </div>
+      <button type="button" id="btnLbTest">Ejecutar prueba de distribución</button>
+      <button type="button" class="secondary" id="btnLbCopy">Copiar comandos consola</button>
+    </div>
+    <pre id="lbOut" style="margin-top:0.5rem;max-height:8rem;font-size:0.72rem;background:#0a0e14;padding:0.5rem;border-radius:6px">Pulsá «Ejecutar prueba» para ver cuántas peticiones atendió cada réplica.</pre>
+    <details style="margin-top:0.5rem">
+      <summary style="cursor:pointer;color:var(--accent);font-size:0.75rem;font-weight:600">Comandos consola (PowerShell / curl)</summary>
+      <pre id="lbCommandsPre" class="lab-cmd-pre" style="max-height:10rem">Cargando…</pre>
+    </details>
+  </section>
+
+  <section>
+    <h2>Monitoreo — health + circuit breakers (en vivo)</h2>
+    <p class="sub" style="margin-top:0">
+      El <strong>estado del circuit breaker</strong> (cerrado / abierto / semiabierto) sale de
+      <code>/api/health/breakers/&lt;servicio&gt;</code> vía gateway. Abajo: resumen por servicio, tabla de breakers y JSON opcional.
+    </p>
+    <div class="row">
+      <button type="button" id="btnHealth">Refrescar</button>
+      <label style="font-size:0.75rem;color:var(--muted);display:flex;align-items:center;gap:0.35rem">
+        <input type="checkbox" id="healthAutoRefresh" /> Auto 8s
+      </label>
+      <span class="st" id="healthMeta" style="color:var(--muted);font-size:0.8rem"></span>
+    </div>
+    <div class="row" style="margin-top:-0.25rem">
+      <div class="seg" role="group" aria-label="Vista del resumen">
+        <span style="color:var(--muted);font-size:0.75rem">Vista resumen:</span>
+        <button type="button" class="secondary" id="btnViewCards" disabled>Tarjetas</button>
+        <button type="button" class="secondary" id="btnViewTable">Tabla breakers</button>
+        <button type="button" class="secondary" id="btnToggleJson">Mostrar JSON</button>
+      </div>
+    </div>
+    <div id="healthGrid" class="grid"></div>
+    <div id="breakerTableWrap" style="display:none;margin-top:0.75rem;overflow-x:auto">
+      <table>
+        <thead>
+          <tr>
+            <th>Servicio</th>
+            <th>Breaker</th>
+            <th>Estado</th>
+            <th>Éxitos</th>
+            <th>Fallos</th>
+            <th>Rechazos</th>
+            <th>Timeouts</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyBreakers"></tbody>
+      </table>
+    </div>
+    <pre id="healthRaw" style="display:none;margin-top:0.75rem"></pre>
+  </section>
+
+  <section>
+    <h2>Contenedores (start / stop)</h2>
+    <div class="row">
+      <button type="button" id="btnContainers">Refrescar estado</button>
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th>Id</th><th>Contenedor</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody id="tbodyContainers"></tbody>
+      </table>
+    </div>
+    <div id="opsMsg" class="errbox" style="display:none;color:#bbf7d0"></div>
+  </section>
+
+  <section id="logsSection">
+    <h2>Logs del contenedor</h2>
+    <details class="log-help">
+      <summary>Cómo probar circuit breakers (abierto / cerrado / semiabierto) y ver el estado</summary>
+      <div class="help-inner">
+        <p style="margin:0 0 0.5rem"><strong>Estado en vivo (recomendado):</strong> en esta misma página, sección <strong>Monitoreo</strong> → <strong>Refrescar</strong>. En <strong>Tarjetas</strong> o <strong>Tabla breakers</strong> ves si cada breaker está <em>Cerrado</em>, <em>Abierto</em> o <em>Semiabierto</em> (viene del gateway: <code>/api/health/breakers/&lt;servicio&gt;</code>).</p>
+        <p style="margin:0 0 0.5rem"><strong>Desde terminal</strong> (puerto según tu <code>.env</code>, ejemplo gateway <code>3000</code>):</p>
+        <pre style="margin:0 0 0.5rem;font-size:0.72rem;background:#0a0e14;padding:0.5rem;border-radius:6px;overflow:auto">curl -s http://localhost:3000/api/health/breakers/usuarios | jq</pre>
+        <p style="margin:0 0 0.35rem"><strong>Prueba típica (laboratorio)</strong> para ver el circuito <em>abierto</em> en logs y en la tabla:</p>
+        <ol>
+          <li>Levantá el stack con todo <strong>running</strong>.</li>
+          <li>En <strong>Contenedores</strong>, hacé <strong>Stop</strong> en <code>db-usuarios</code> (o la base que use el servicio que mirás).</li>
+          <li>Generá varias peticiones que usen la base (por ejemplo login o <code>GET /api/health</code> en usuarios) hasta que fallen; el breaker <code>usuarios-mysql</code> puede pasar a <strong>Abierto</strong> tras varios fallos seguidos (umbral en el servicio, p. ej. <code>CB_*</code> en <code>.env</code>).</li>
+          <li>Acá, target <code>usuarios-service</code> → <strong>Traer logs</strong> → vista <strong>Solo lo importante</strong>: vas a ver líneas claras de circuit breaker y errores de red.</li>
+          <li><strong>Start</strong> en <code>db-usuarios</code>; esperá unos segundos (p. ej. <code>resetTimeout</code> del breaker, ~15 s por defecto en usuarios). Refrescá monitoreo: suele aparecer <strong>Semiabierto</strong> y luego <strong>Cerrado</strong> si la base responde.</li>
+        </ol>
+        <p style="margin:0.5rem 0 0">Los mensajes técnicos largos siguen en <strong>Texto crudo</strong> o <strong>Formateado</strong>; <strong>Solo lo importante</strong> filtra y explica en castellano lo relevante.</p>
+      </div>
+    </details>
+    <div class="row">
+      <div>
+        <label for="logTarget">Target</label>
+        <select id="logTarget"></select>
+      </div>
+      <div>
+        <label for="logTail">Líneas (máx. 2000)</label>
+        <input type="text" id="logTail" value="150" style="width:5rem" />
+      </div>
+      <button type="button" id="btnLogs">Traer logs</button>
+      <label style="font-size:0.75rem;color:var(--muted);display:flex;align-items:center;gap:0.35rem">
+        <input type="checkbox" id="logAuto" checked /> Logs tras breaker
+      </label>
+    </div>
+    <p class="sub" style="margin:0.25rem 0 0.5rem">Acceso rápido a logs:</p>
+    <div id="logQuickBtns"></div>
+    <div class="row" style="margin-top:-0.25rem">
+      <div class="seg" role="group" aria-label="Formato de logs">
+        <span style="color:var(--muted);font-size:0.75rem">Vista:</span>
+        <button type="button" class="secondary" id="btnLogRaw" disabled>Texto crudo</button>
+        <button type="button" class="secondary" id="btnLogPretty">Formateado (JSON)</button>
+        <button type="button" class="secondary" id="btnLogDigest">Solo lo importante</button>
+      </div>
+    </div>
+    <pre id="logOut" class="log-plain">(elegí un target y pulsá «Traer logs»)</pre>
+    <div id="logPretty"></div>
+    <div id="logDigest"></div>
+  </section>
+
+  <script src="panel-lab.js"></script>
+  <script src="panel-loadbalance.js"></script>
+  <script>
+    const LS = 'mercadoliebre_ops_token';
+    const DEFAULT_OPS_TOKEN = 'ml_ops_panel_dev_token';
+    let lastHealthSummary = null;
+    let healthView = 'cards';
+    let healthJsonVisible = false;
+    let lastLogText = '';
+    let logView = 'raw';
+
+    /** Acepta solo el secreto o pegados tipo "Bearer x" / "Authorization: Bearer x" */
+    function normalizeToken(raw) {
+      let t = String(raw || '').trim();
+      if (/^authorization:\s*bearer\s+/i.test(t)) {
+        t = t.replace(/^authorization:\s*bearer\s+/i, '').trim();
+      } else if (/^bearer\s+/i.test(t)) {
+        t = t.replace(/^bearer\s+/i, '').trim();
+      }
+      return t;
+    }
+    const api = (path) => {
+      const base = '';
+      return base + path;
+    };
+    const headers = () => {
+      const t = normalizeToken(sessionStorage.getItem(LS) || '');
+      const h = { 'Content-Type': 'application/json' };
+      if (t) h['Authorization'] = 'Bearer ' + t;
+      return h;
+    };
+
+    function breakerPillClass(state) {
+      const s = String(state || '').toLowerCase();
+      if (s === 'open') return 'open';
+      if (s === 'half_open' || s === 'halfopen') return 'half_open';
+      if (s === 'closed') return 'closed';
+      return 'unknown';
+    }
+    function breakerLabelEs(state) {
+      const s = String(state || '').toLowerCase();
+      if (s === 'open') return 'Abierto';
+      if (s === 'half_open' || s === 'halfopen') return 'Semiabierto';
+      if (s === 'closed') return 'Cerrado';
+      return String(state || '—');
+    }
+    function formatPinoTime(t) {
+      if (t == null || t === '') return '—';
+      const n = Number(t);
+      if (!Number.isFinite(n)) return String(t);
+      try {
+        return new Date(n).toISOString();
+      } catch {
+        return String(t);
+      }
+    }
+
+    function setHealthView(mode) {
+      healthView = mode;
+      const grid = document.getElementById('healthGrid');
+      const wrap = document.getElementById('breakerTableWrap');
+      const bCards = document.getElementById('btnViewCards');
+      const bTable = document.getElementById('btnViewTable');
+      if (mode === 'table') {
+        grid.style.display = 'none';
+        wrap.style.display = 'block';
+        bCards.disabled = false;
+        bTable.disabled = true;
+      } else {
+        grid.style.display = '';
+        wrap.style.display = 'none';
+        bCards.disabled = true;
+        bTable.disabled = false;
+      }
+    }
+
+    function setHealthJsonToggleUi() {
+      const raw = document.getElementById('healthRaw');
+      const btn = document.getElementById('btnToggleJson');
+      raw.style.display = healthJsonVisible ? 'block' : 'none';
+      btn.textContent = healthJsonVisible ? 'Ocultar JSON' : 'Mostrar JSON';
+    }
+
+    function fillBreakerTable(j) {
+      const tb = document.getElementById('tbodyBreakers');
+      tb.innerHTML = '';
+      const svcs = (j && j.services) || {};
+      for (const [svcName, pack] of Object.entries(svcs)) {
+        const br = pack.breakers || {};
+        const list = br.breakers || [];
+        if (!list.length) {
+          const tr = document.createElement('tr');
+          const td = document.createElement('td');
+          td.colSpan = 7;
+          td.textContent = svcName + ' — sin datos de breakers (HTTP ' + (pack.breakers_http || '?') + ')';
+          td.style.color = 'var(--muted)';
+          tr.appendChild(td);
+          tb.appendChild(tr);
+          continue;
+        }
+        list.forEach((b) => {
+          const tr = document.createElement('tr');
+          const st = b.state || '?';
+          const stats = b.stats || {};
+          const cells = [
+            svcName,
+            b.name || '—',
+            '<span class="pill-br ' + breakerPillClass(st) + '">' + breakerLabelEs(st) + '</span>',
+            String(stats.successes ?? 0),
+            String(stats.failures ?? 0),
+            String(stats.rejects ?? 0),
+            String(stats.timeouts ?? 0),
+          ];
+          cells.forEach((html, i) => {
+            const td = document.createElement('td');
+            if (i === 2) td.innerHTML = html;
+            else td.textContent = html;
+            tr.appendChild(td);
+          });
+          tb.appendChild(tr);
+        });
+      }
+    }
+
+    function digestHintForBreaker(obj) {
+      const st = String(obj.state || '').toLowerCase();
+      if (st === 'open') return 'El servicio deja de insistir con la dependencia un tiempo; los clientes pueden ver 503 o errores controlados.';
+      if (st === 'half_open') return 'Se permite una petición de prueba para ver si la base volvió.';
+      if (st === 'closed' || st === 'half_open_success') return 'El circuito volvió a dejar pasar el tráfico con normalidad.';
+      const r = String(obj.reason || '');
+      if (r === 'circuit_open') return 'El breaker rechazó la llamada: el circuito estaba abierto; no se consultó la base.';
+      if (r === 'upstream_error') return 'La base o la red fallaron; si se repite, el breaker puede abrirse.';
+      if (r === 'timeout') return 'La operación superó el tiempo máximo del breaker.';
+      return '';
+    }
+
+    function tryDigestFromJson(obj) {
+      if (!obj || typeof obj !== 'object') return null;
+      const tm = formatPinoTime(obj.time);
+      if (obj.event === 'circuit_breaker') {
+        let headline = 'Evento de circuit breaker';
+        const st = String(obj.state || '').toLowerCase();
+        if (st === 'open') headline = 'Circuito ABIERTO: se bloquean nuevas llamadas a la dependencia';
+        else if (st === 'half_open') headline = 'Circuito SEMIABIERTO: prueba de recuperación';
+        else if (st === 'closed') headline = 'Circuito CERRADO: tráfico normal otra vez';
+        else if (obj.reason === 'upstream_error') headline = 'Fallo hacia la dependencia (p. ej. MySQL)';
+        else if (obj.reason === 'circuit_open') headline = 'Petición rechazada: circuito abierto';
+        else if (obj.reason === 'timeout') headline = 'Timeout en la dependencia protegida';
+        const parts = [];
+        if (obj.breaker) parts.push('Breaker: ' + String(obj.breaker));
+        if (obj.state) parts.push('Estado: ' + breakerLabelEs(obj.state));
+        if (obj.reason) parts.push('Motivo técnico: ' + String(obj.reason));
+        if (obj.err && (obj.err.message || typeof obj.err === 'string')) {
+          parts.push('Error: ' + (obj.err.message || String(obj.err)));
+        }
+        if (obj.msg) parts.push('Mensaje: ' + String(obj.msg));
+        return { tag: 'breaker', headline, body: parts.join('\n'), hint: digestHintForBreaker(obj), meta: tm };
+      }
+      const lev = Number(obj.level);
+      if (lev >= 50 || (obj.err && (obj.err.message || typeof obj.err === 'string'))) {
+        const headline = obj.msg ? String(obj.msg).slice(0, 140) : 'Error (nivel alto o excepción)';
+        const parts = [];
+        if (obj.err && obj.err.message) parts.push('Error: ' + String(obj.err.message));
+        if (obj.reason) parts.push('Motivo: ' + String(obj.reason));
+        if (obj.breaker) parts.push('Breaker: ' + String(obj.breaker));
+        const body = parts.join('\n') || (obj.msg ? '' : JSON.stringify(obj).slice(0, 400));
+        return { tag: 'err', headline, body, hint: 'Revisá base de datos, red Docker y que el contenedor no se haya detenido.', meta: tm };
+      }
+      const sc = obj.res && obj.res.statusCode;
+      if (sc >= 500) {
+        return {
+          tag: 'http',
+          headline: 'Respuesta HTTP ' + sc + ' en una petición',
+          body: String(obj.msg || '') + (obj.req && obj.req.url ? '\nRuta: ' + String(obj.req.method || '') + ' ' + String(obj.req.url) : ''),
+          hint: '',
+          meta: tm,
+        };
+      }
+      if (sc === 503 && obj.req && obj.req.url) {
+        return {
+          tag: 'http',
+          headline: 'Servicio no disponible (503): ' + String(obj.req.method || '') + ' ' + String(obj.req.url),
+          body: String(obj.msg || ''),
+          hint: 'Suele ser base caída, arranque en curso o circuit breaker abierto.',
+          meta: tm,
+        };
+      }
+      if (obj.reason === 'upstream_error' || obj.reason === 'circuit_open' || obj.reason === 'timeout') {
+        return {
+          tag: 'breaker',
+          headline: 'Consulta o llamada bloqueada / fallida',
+          body:
+            'Motivo: ' +
+            String(obj.reason) +
+            (obj.err && obj.err.message ? '\nError: ' + String(obj.err.message) : '') +
+            (obj.breaker ? '\nBreaker: ' + String(obj.breaker) : ''),
+          hint: digestHintForBreaker(obj),
+          meta: tm,
+        };
+      }
+      return null;
+    }
+
+    function tryDigestPlain(line) {
+      const l = line.trim();
+      if (!l) return null;
+      if (/ready for connections/i.test(l)) {
+        return {
+          tag: 'ok',
+          headline: 'MySQL listo para conexiones',
+          body: l.length > 220 ? l.slice(0, 220) + '…' : l,
+          hint: 'A partir de acá las apps pueden conectar a la base (si la red y credenciales coinciden).',
+          meta: '',
+        };
+      }
+      if (/Shutting down mysqld|Shutdown complete|Received SHUTDOWN/i.test(l)) {
+        return {
+          tag: 'err',
+          headline: 'MySQL se está apagando o ya se detuvo',
+          body: l.length > 220 ? l.slice(0, 220) + '…' : l,
+          hint: 'Normal si usaste Stop en Docker o compose down. Mientras tanto las APIs que usan esta DB fallan.',
+          meta: '',
+        };
+      }
+      if (/InnoDB initialization has started/i.test(l)) {
+        return {
+          tag: 'ok',
+          headline: 'MySQL está arrancando (InnoDB)',
+          body: '',
+          hint: 'Esperá la línea “ready for connections” antes de probar login u otras rutas que usen la base.',
+          meta: '',
+        };
+      }
+      if (/EAI_AGAIN|ENOTFOUND|ECONNREFUSED|ETIMEDOUT|ECONNRESET|getaddrinfo/i.test(l)) {
+        return {
+          tag: 'err',
+          headline: 'Red o nombre de host no resuelve / conexión rechazada',
+          body: l.length > 400 ? l.slice(0, 400) + '…' : l,
+          hint: '¿El contenedor de la base está running? ¿El hostname (p. ej. db-usuarios) coincide con el servicio en compose?',
+          meta: '',
+        };
+      }
+      if (/\[ERROR\]|ERROR\s|Fatal error/i.test(l)) {
+        return { tag: 'err', headline: 'Mensaje de error en el log', body: l.slice(0, 450), hint: '', meta: '' };
+      }
+      return null;
+    }
+
+    function collectDigestItems(text) {
+      const items = [];
+      const lines = String(text || '').split(/\r?\n/);
+      for (const line of lines) {
+        const t = line.trim();
+        if (!t) continue;
+        let obj = null;
+        try {
+          obj = JSON.parse(t);
+        } catch {
+          obj = null;
+        }
+        let d = null;
+        if (obj && typeof obj === 'object') d = tryDigestFromJson(obj);
+        if (!d) d = tryDigestPlain(line);
+        if (d) items.push(d);
+      }
+      return items;
+    }
+
+    function renderLogDigest(text) {
+      const el = document.getElementById('logDigest');
+      el.innerHTML = '';
+      if (!String(text || '').trim()) {
+        const p = document.createElement('p');
+        p.style.color = 'var(--muted)';
+        p.style.margin = '0.25rem 0';
+        p.textContent = 'No hay texto todavía. Elegí target, pulsá «Traer logs» y volvé a esta vista.';
+        el.appendChild(p);
+        return;
+      }
+      const items = collectDigestItems(text);
+      if (!items.length) {
+        const p = document.createElement('p');
+        p.style.color = 'var(--muted)';
+        p.style.margin = '0.25rem 0';
+        p.textContent =
+          'No encontramos en estas líneas eventos “destacados” (circuit breakers, errores fuertes, MySQL listo/apagado, problemas de red). Subí «Líneas», probá otro target o abrí Texto crudo / Formateado.';
+        el.appendChild(p);
+        return;
+      }
+      items.forEach((d) => {
+        const row = document.createElement('div');
+        row.className = 'digest-row';
+        const tag = document.createElement('div');
+        tag.className = 'digest-tag' + (d.tag === 'err' ? ' err' : d.tag === 'ok' ? ' ok' : '');
+        tag.textContent =
+          d.tag === 'breaker' ? 'Circuit breaker' : d.tag === 'http' ? 'HTTP' : d.tag === 'ok' ? 'Base / arranque' : 'Error / atención';
+        const head = document.createElement('div');
+        head.className = 'digest-head';
+        head.textContent = (d.meta ? '[' + d.meta + '] ' : '') + d.headline;
+        row.appendChild(tag);
+        row.appendChild(head);
+        if (d.body) {
+          const body = document.createElement('div');
+          body.className = 'digest-body';
+          body.textContent = d.body;
+          row.appendChild(body);
+        }
+        if (d.hint) {
+          const hint = document.createElement('div');
+          hint.className = 'digest-hint';
+          hint.textContent = '→ ' + d.hint;
+          row.appendChild(hint);
+        }
+        el.appendChild(row);
+      });
+    }
+
+    function applyLogView() {
+      const out = document.getElementById('logOut');
+      const pretty = document.getElementById('logPretty');
+      const digest = document.getElementById('logDigest');
+      const bRaw = document.getElementById('btnLogRaw');
+      const bPr = document.getElementById('btnLogPretty');
+      const bDi = document.getElementById('btnLogDigest');
+      out.style.display = 'none';
+      pretty.style.display = 'none';
+      digest.style.display = 'none';
+      if (logView !== 'pretty') pretty.innerHTML = '';
+      bRaw.disabled = logView === 'raw';
+      bPr.disabled = logView === 'pretty';
+      bDi.disabled = logView === 'digest';
+      if (logView === 'raw') {
+        out.style.display = 'block';
+        out.textContent = lastLogText;
+      } else if (logView === 'pretty') {
+        pretty.style.display = 'block';
+        renderLogPretty(lastLogText);
+      } else {
+        digest.style.display = 'block';
+        renderLogDigest(lastLogText);
+      }
+    }
+
+    function renderLogPretty(text) {
+      const pretty = document.getElementById('logPretty');
+      pretty.innerHTML = '';
+      if (!String(text || '').trim()) {
+        const p = document.createElement('p');
+        p.style.color = 'var(--muted)';
+        p.style.margin = '0.25rem 0';
+        p.textContent = 'No hay texto todavía. Elegí target, pulsá «Traer logs» y volvé a esta vista.';
+        pretty.appendChild(p);
+        return;
+      }
+      const lines = String(text || '').split(/\r?\n/);
+      lines.forEach((line) => {
+        const entry = document.createElement('div');
+        entry.className = 'log-entry';
+        const trimmed = line.trim();
+        if (!trimmed) {
+          entry.style.minHeight = '0.35rem';
+          pretty.appendChild(entry);
+          return;
+        }
+        let obj = null;
+        try {
+          obj = JSON.parse(trimmed);
+        } catch {
+          obj = null;
+        }
+        if (!obj || typeof obj !== 'object') {
+          const pre = document.createElement('pre');
+          pre.className = 'log-plain';
+          pre.style.margin = '0';
+          pre.style.background = 'transparent';
+          pre.style.border = 'none';
+          pre.style.padding = '0';
+          pre.textContent = line;
+          entry.appendChild(pre);
+          pretty.appendChild(entry);
+          return;
+        }
+        const meta = document.createElement('div');
+        meta.className = 'log-meta';
+        const svc = obj.service || obj.req?.service || '';
+        const lvl = obj.level != null ? 'level ' + obj.level : '';
+        const tm = formatPinoTime(obj.time);
+        meta.textContent = [tm, lvl, svc].filter(Boolean).join(' · ');
+        const msg = document.createElement('div');
+        msg.className = 'log-msg';
+        msg.textContent = obj.msg != null ? String(obj.msg) : '(sin msg)';
+        entry.appendChild(meta);
+        entry.appendChild(msg);
+        if (obj.err && (obj.err.message || typeof obj.err === 'string')) {
+          const er = document.createElement('div');
+          er.className = 'log-meta';
+          er.style.color = 'var(--err)';
+          er.textContent = 'err: ' + (obj.err.message || String(obj.err));
+          entry.appendChild(er);
+        }
+        if (obj.reason || obj.breaker || obj.event === 'circuit_breaker') {
+          const ex = document.createElement('div');
+          ex.className = 'log-meta';
+          ex.textContent = [obj.event, obj.breaker, obj.reason].filter(Boolean).join(' · ');
+          entry.appendChild(ex);
+        }
+        const det = document.createElement('details');
+        const sum = document.createElement('summary');
+        sum.textContent = 'JSON completo';
+        const pre = document.createElement('pre');
+        pre.textContent = JSON.stringify(obj, null, 2);
+        det.appendChild(sum);
+        det.appendChild(pre);
+        entry.appendChild(det);
+        pretty.appendChild(entry);
+      });
+    }
+
+    if (!sessionStorage.getItem(LS)) sessionStorage.setItem(LS, DEFAULT_OPS_TOKEN);
+    document.getElementById('token').value = sessionStorage.getItem(LS) || DEFAULT_OPS_TOKEN;
+
+    document.getElementById('btnSave').onclick = () => {
+      const t = normalizeToken(document.getElementById('token').value);
+      sessionStorage.setItem(LS, t);
+      document.getElementById('token').value = t;
+      document.getElementById('authErr').style.display = 'none';
+    };
+    document.getElementById('btnViewCards').onclick = () => setHealthView('cards');
+    document.getElementById('btnViewTable').onclick = () => setHealthView('table');
+    document.getElementById('btnToggleJson').onclick = () => {
+      healthJsonVisible = !healthJsonVisible;
+      setHealthJsonToggleUi();
+    };
+
+    document.getElementById('btnLogRaw').onclick = () => {
+      logView = 'raw';
+      applyLogView();
+    };
+    document.getElementById('btnLogPretty').onclick = () => {
+      logView = 'pretty';
+      applyLogView();
+    };
+    document.getElementById('btnLogDigest').onclick = () => {
+      logView = 'digest';
+      applyLogView();
+    };
+
+    function showAuthErr(msg) {
+      const el = document.getElementById('authErr');
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+
+    async function loadHealth() {
+      const meta = document.getElementById('healthMeta');
+      meta.textContent = 'Cargando…';
+      const grid = document.getElementById('healthGrid');
+      const raw = document.getElementById('healthRaw');
+      const tbBr = document.getElementById('tbodyBreakers');
+      try {
+        const res = await fetch(api('/api/ops/health-summary'), { headers: headers() });
+        const j = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          meta.textContent = '';
+          grid.innerHTML = '';
+          tbBr.innerHTML = '';
+          lastHealthSummary = null;
+          showAuthErr(j.error || res.statusText || 'Error');
+          return;
+        }
+        document.getElementById('authErr').style.display = 'none';
+        lastHealthSummary = j;
+        meta.textContent = 'Gateway: ' + (j.gateway || '—');
+        grid.innerHTML = '';
+        const svcs = j.services || {};
+        for (const [name, pack] of Object.entries(svcs)) {
+          const h = pack.health || {};
+          const br = pack.breakers || {};
+          const st = h.status || '—';
+          const card = document.createElement('div');
+          card.className = 'svc-card';
+          const brParts = (br.breakers || []).map((b) => {
+            const st0 = b.state || '?';
+            return (
+              '<span class="pill-br ' +
+              breakerPillClass(st0) +
+              '" title="' +
+              (b.name || '') +
+              '">' +
+              (b.name || '?') +
+              ': ' +
+              breakerLabelEs(st0) +
+              '</span>'
+            );
+          });
+          const brList = brParts.length ? brParts.join(' ') : '—';
+          card.innerHTML =
+            '<h3>' +
+            name +
+            '</h3>' +
+            '<div class="st">Health HTTP: ' +
+            pack.health_http +
+            ' · Breakers HTTP: ' +
+            pack.breakers_http +
+            '</div>' +
+            '<div class="st">status: <strong>' +
+            st +
+            '</strong></div>' +
+            '<div class="st">db: ' +
+            (h.db && h.db.ok ? 'ok' : 'falla') +
+            (h.db && h.db.latency_ms != null ? ' (' + h.db.latency_ms + ' ms)' : '') +
+            '</div>' +
+            '<div class="st">breakers: ' +
+            brList +
+            '</div>';
+          grid.appendChild(card);
+        }
+        fillBreakerTable(j);
+        raw.textContent = JSON.stringify(j, null, 2);
+        setHealthView(healthView);
+        setHealthJsonToggleUi();
+      } catch (e) {
+        meta.textContent = '';
+        showAuthErr(String(e.message || e));
+      }
+    }
+
+    function fillLogSelect(ids) {
+      const sel = document.getElementById('logTarget');
+      const prev = sel.value;
+      sel.innerHTML = '';
+      ids.forEach((id) => {
+        const o = document.createElement('option');
+        o.value = id;
+        o.textContent = id;
+        sel.appendChild(o);
+      });
+      if (prev && ids.includes(prev)) sel.value = prev;
+    }
+
+    async function loadContainers() {
+      const tb = document.getElementById('tbodyContainers');
+      const msg = document.getElementById('opsMsg');
+      msg.style.display = 'none';
+      tb.innerHTML = '<tr><td colspan="4">Cargando…</td></tr>';
+      try {
+        const res = await fetch(api('/api/ops/containers'), { headers: headers() });
+        const j = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          tb.innerHTML = '';
+          showAuthErr(j.error || 'Error');
+          return;
+        }
+        document.getElementById('authErr').style.display = 'none';
+        tb.innerHTML = '';
+        const ids = [];
+        (j.containers || []).forEach((c) => {
+          ids.push(c.id);
+          const tr = document.createElement('tr');
+          const up = c.running;
+          tr.innerHTML =
+            '<td><code>' + c.id + '</code></td>' +
+            '<td><code>' + c.container_name + '</code></td>' +
+            '<td><span class="pill ' + (up ? 'up' : 'down') + '">' + (up ? 'running' : 'stopped') + '</span> ' +
+            (c.status ? '<span style="color:var(--muted);font-size:0.7rem">' + c.status + '</span>' : '') + '</td>' +
+            '<td>' +
+            '<button class="danger" data-act="stop" data-target="' + c.id + '"' + (up ? '' : ' disabled') + '>Stop</button> ' +
+            '<button class="secondary" data-act="start" data-target="' + c.id + '"' + (up ? ' disabled' : '') + '>Start</button>' +
+            '</td>';
+          tb.appendChild(tr);
+        });
+        fillLogSelect(ids);
+        tb.querySelectorAll('button[data-act]').forEach((btn) => {
+          btn.onclick = () => doAction(btn.dataset.act, btn.dataset.target);
+        });
+      } catch (e) {
+        tb.innerHTML = '';
+        showAuthErr(String(e.message || e));
+      }
+    }
+
+    async function doAction(action, target) {
+      const msg = document.getElementById('opsMsg');
+      msg.style.display = 'none';
+      if (!confirm('¿Seguro? ' + action + ' → ' + target)) return;
+      try {
+        const res = await fetch(api('/api/ops/action'), {
+          method: 'POST',
+          headers: headers(),
+          body: JSON.stringify({ target, action }),
+        });
+        const j = await res.json().catch(() => ({}));
+        msg.style.display = 'block';
+        msg.style.color = res.ok ? '#bbf7d0' : '#fecaca';
+        msg.textContent = res.ok ? JSON.stringify(j) : (j.error || j.detail || res.statusText);
+        await loadContainers();
+        await loadHealth();
+      } catch (e) {
+        msg.style.display = 'block';
+        msg.style.color = '#fecaca';
+        msg.textContent = String(e.message || e);
+      }
+    }
+
+    window.opsShowLogs = function (text) {
+      lastLogText = text == null ? '' : String(text);
+      applyLogView();
+    };
+
+    document.getElementById('btnLogs').onclick = async () => {
+      const target = document.getElementById('logTarget').value;
+      const tail = document.getElementById('logTail').value || '150';
+      const out = document.getElementById('logOut');
+      const digest = document.getElementById('logDigest');
+      if (logView === 'digest') {
+        digest.style.display = 'block';
+        digest.textContent = 'Cargando…';
+        out.style.display = 'none';
+        document.getElementById('logPretty').style.display = 'none';
+      } else if (logView === 'pretty') {
+        document.getElementById('logPretty').innerHTML = '';
+        document.getElementById('logPretty').style.display = 'block';
+        const p = document.createElement('p');
+        p.style.color = 'var(--muted)';
+        p.textContent = 'Cargando…';
+        document.getElementById('logPretty').appendChild(p);
+        out.style.display = 'none';
+        digest.style.display = 'none';
+      } else {
+        out.style.display = 'block';
+        out.textContent = 'Cargando…';
+        document.getElementById('logPretty').style.display = 'none';
+        digest.style.display = 'none';
+      }
+      try {
+        const res = await fetch(api('/api/ops/logs?target=' + encodeURIComponent(target) + '&tail=' + encodeURIComponent(tail)), {
+          headers: headers(),
+        });
+        const text = await res.text();
+        lastLogText = res.ok ? text : text || res.statusText;
+        applyLogView();
+      } catch (e) {
+        lastLogText = String(e.message || e);
+        applyLogView();
+      }
+    };
+
+    document.getElementById('btnHealth').onclick = loadHealth;
+    document.getElementById('btnContainers').onclick = loadContainers;
+
+    setHealthView('cards');
+    setHealthJsonToggleUi();
+    loadContainers().then(loadHealth).then(async () => {
+      if (typeof initPanelLab === 'function') await initPanelLab();
+      if (typeof initPanelLoadBalance === 'function') initPanelLoadBalance();
+    });
+  </script>
+</body>
+</html>

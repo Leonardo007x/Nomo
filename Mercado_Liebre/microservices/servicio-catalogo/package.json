@@ -1,12 +1,13 @@
 {
   "name": "mercadoliebre-catalogo",
   "version": "1.0.0",
-  "description": "Microservicio de productos (BD propia)",
-  "main": "server.js",
+  "description": "Microservicio de productos (BD propia, integra con tiendas-service vía circuit breaker)",
+  "main": "src/index.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node src/index.js"
   },
   "dependencies": {
+    "@mercadoliebre/resilience": "file:./packages/resilience",
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",

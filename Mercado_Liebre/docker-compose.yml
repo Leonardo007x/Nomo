@@ -168,10 +168,11 @@ services:
   # ==========================================================
 
   # --- Servicio de usuarios y autenticación ---
+  # build.context = raíz del repo para incluir el paquete compartido packages/resilience.
   usuarios-service:
     build:
-      context: ./microservices/servicio-usuarios
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: microservices/servicio-usuarios/Dockerfile
     container_name: mercadoliebre_usuarios
     env_file:
       - .env
@@ -185,6 +186,32 @@ services:
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
+      OPS_LAB_TOKEN: ${OPS_PANEL_TOKEN:-ml_ops_panel_dev_token}
+      INSTANCE_ID: usuarios-1
+    networks:
+      - mercadoliebre-net
+    depends_on:
+      db-usuarios:
+        condition: service_healthy
+    restart: always
+
+  # Réplica 2 — mismo código/BD; el gateway reparte tráfico (balanceo round-robin).
+  usuarios-service-2:
+    build:
+      context: .
+      dockerfile: microservices/servicio-usuarios/Dockerfile
+    container_name: mercadoliebre_usuarios_2
+    env_file:
+      - .env
+    environment:
+      PORT: "${USUARIOS_SERVICE_PORT}"
+      INSTANCE_ID: usuarios-2
+      DB_HOST: db-usuarios
+      MYSQL_DATABASE: ${MYSQL_DATABASE_USUARIOS}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      OPS_LAB_TOKEN: ${OPS_PANEL_TOKEN:-ml_ops_panel_dev_token}
     networks:
       - mercadoliebre-net
     depends_on:
@@ -195,8 +222,8 @@ services:
   # --- Servicio de tiendas y temas ---
   tiendas-service:
     build:
-      context: ./microservices/servicio-tiendas
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: microservices/servicio-tiendas/Dockerfile
     container_name: mercadoliebre_tiendas
     env_file:
       - .env
@@ -211,6 +238,7 @@ services:
       INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN:-ml_internal_shared_secret_dev_only}
       # URL interna hacia catálogo para componer vista pública.
       CATALOGO_SERVICE_URL: http://catalogo-service:${CATALOGO_SERVICE_PORT}
+      OPS_LAB_TOKEN: ${OPS_PANEL_TOKEN:-ml_ops_panel_dev_token}
     networks:
       - mercadoliebre-net
     depends_on:
@@ -219,10 +247,12 @@ services:
     restart: always
 
   # --- Servicio de catálogo (productos) ---
+  # build.context = raíz del repo: el Dockerfile necesita acceso al paquete
+  # compartido `packages/resilience` además de su propio código.
   catalogo-service:
     build:
-      context: ./microservices/servicio-catalogo
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: microservices/servicio-catalogo/Dockerfile
     container_name: mercadoliebre_catalogo
     env_file:
       - .env
@@ -236,6 +266,7 @@ services:
       INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN:-ml_internal_shared_secret_dev_only}
       # URL interna hacia tiendas para validar ownership de tienda.
       TIENDAS_SERVICE_URL: http://tiendas-service:${TIENDAS_SERVICE_PORT}
+      OPS_LAB_TOKEN: ${OPS_PANEL_TOKEN:-ml_ops_panel_dev_token}
     networks:
       - mercadoliebre-net
     depends_on:
@@ -246,8 +277,8 @@ services:
   # --- Servicio de media (Cloudinary + trazabilidad) ---
   media-service:
     build:
-      context: ./microservices/servicio-media
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: microservices/servicio-media/Dockerfile
     container_name: mercadoliebre_media
     env_file:
       - .env
@@ -261,6 +292,7 @@ services:
       CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
       CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
       CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+      OPS_LAB_TOKEN: ${OPS_PANEL_TOKEN:-ml_ops_panel_dev_token}
     networks:
       - mercadoliebre-net
     depends_on:
@@ -271,8 +303,8 @@ services:
   # --- Servicio de categorías ---
   categorias-service:
     build:
-      context: ./microservices/servicio-categorias
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: microservices/servicio-categorias/Dockerfile
     container_name: mercadoliebre_categorias
     env_file:
       - .env
@@ -285,6 +317,7 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN:-ml_internal_shared_secret_dev_only}
       TIENDAS_SERVICE_URL: http://tiendas-service:${TIENDAS_SERVICE_PORT}
+      OPS_LAB_TOKEN: ${OPS_PANEL_TOKEN:-ml_ops_panel_dev_token}
     networks:
       - mercadoliebre-net
     depends_on:
@@ -295,8 +328,8 @@ services:
   # --- Servicio de IA (Groq) ---
   ia-service:
     build:
-      context: ./microservices/servicio-ia
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: microservices/servicio-ia/Dockerfile
     container_name: mercadoliebre_ia
     env_file:
       - .env
@@ -309,11 +342,34 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       GROQ_API_KEY: ${GROQ_API_KEY}
       GROQ_MODEL: ${GROQ_MODEL:-llama-3.3-70b-versatile}
+      OPS_LAB_TOKEN: ${OPS_PANEL_TOKEN:-ml_ops_panel_dev_token}
     networks:
       - mercadoliebre-net
     depends_on:
       db-ia:
         condition: service_healthy
+    restart: always
+
+  # --- Panel de operaciones (Docker socket + UI estática) ---
+  # Monta el socket real del motor Docker: start/stop y logs NO son simulados.
+  # Seguridad: definí OPS_PANEL_TOKEN en .env (obligatorio para la API).
+  ops-service:
+    build:
+      context: .
+      dockerfile: microservices/servicio-ops/Dockerfile
+    container_name: mercadoliebre_ops
+    env_file:
+      - .env
+    environment:
+      PORT: "${OPS_SERVICE_PORT:-3007}"
+      OPS_PANEL_TOKEN: "${OPS_PANEL_TOKEN:-ml_ops_panel_dev_token}"
+      OPS_LAB_TOKEN: "${OPS_PANEL_TOKEN:-ml_ops_panel_dev_token}"
+      GATEWAY_INTERNAL_URL: http://gateway:80
+      GATEWAY_HOST_PORT: "${GATEWAY_HOST_PORT:-3000}"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - mercadoliebre-net
     restart: always
 
   # ==========================================================
@@ -333,11 +389,13 @@ services:
       - mercadoliebre-net
     depends_on:
       - usuarios-service
+      - usuarios-service-2
       - tiendas-service
       - catalogo-service
       - media-service
       - categorias-service
       - ia-service
+      - ops-service
     restart: always
 
   # --- Frontend SPA (Nginx) ---

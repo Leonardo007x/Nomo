@@ -1,0 +1,12 @@
+{
+  "name": "@mercadoliebre/resilience",
+  "version": "1.0.0",
+  "description": "Librería compartida de resiliencia y observabilidad: circuit breaker logging, healthchecks unificados y clasificación de errores para los microservicios de Mercado Liebre.",
+  "main": "index.js",
+  "license": "UNLICENSED",
+  "private": true,
+  "peerDependencies": {
+    "opossum": "^8.0.0",
+    "pino": "^9.0.0"
+  }
+}

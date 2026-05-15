@@ -1,12 +1,13 @@
 {
   "name": "mercadoliebre-tiendas",
   "version": "1.0.0",
-  "description": "Microservicio de tiendas y temas (BD propia)",
-  "main": "server.js",
+  "description": "Microservicio de tiendas y temas (BD propia, breaker hacia catálogo)",
+  "main": "src/index.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node src/index.js"
   },
   "dependencies": {
+    "@mercadoliebre/resilience": "file:./packages/resilience",
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",

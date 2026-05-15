@@ -1,12 +1,13 @@
 {
   "name": "mercadoliebre-media",
   "version": "1.0.0",
-  "description": "Microservicio de media (Cloudinary) con BD propia",
-  "main": "server.js",
+  "description": "Microservicio de media (Cloudinary + auditoría) con breaker hacia SaaS externo",
+  "main": "src/index.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node src/index.js"
   },
   "dependencies": {
+    "@mercadoliebre/resilience": "file:./packages/resilience",
     "cloudinary": "^2.5.1",
     "cors": "^2.8.5",
     "express": "^4.19.2",

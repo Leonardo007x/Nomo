@@ -1,0 +1,28 @@
+/** Pool MySQL y espera de disponibilidad. */
+const mysql = require('mysql2/promise');
+const { DB } = require('./config');
+const { logger } = require('./logger');
+
+function createPool() { return mysql.createPool(DB); }
+
+async function waitForDb(pool, maxAttempts = 40, delayMs = 2000) {
+  for (let i = 0; i < maxAttempts; i++) {
+    try {
+      await pool.query('SELECT 1');
+      logger.info(
+        { database: DB.database, host: DB.host },
+        '[categorias] Conexión a MySQL establecida; base lista.'
+      );
+      return;
+    } catch (e) {
+      logger.warn(
+        { err: e?.message, attempt: i + 1, maxAttempts, host: DB.host },
+        '[categorias] MySQL aún no responde; reintentando.'
+      );
+      await new Promise((r) => setTimeout(r, delayMs));
+    }
+  }
+  throw new Error('[categorias] No se pudo conectar a MySQL tras agotar reintentos');
+}
+
+module.exports = { createPool, waitForDb };
