@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  pedidos:
+    build: ./pedidos
+    container_name: pedidos
+    ports:
+      - "${PEDIDOS_PORT:-5001}:5000"
+    networks:
+      - monitoreo_net
+
+  inventario:
+    build: ./inventario
+    container_name: inventario
+    ports:
+      - "${INVENTARIO_PORT:-5002}:5000"
+    networks:
+      - monitoreo_net
+
+  pagos:
+    build: ./pagos
+    container_name: pagos
+    ports:
+      - "${PAGOS_PORT:-5003}:5000"
+    networks:
+      - monitoreo_net
+
+  gateway:
+    build: ./gateway
+    container_name: gateway
+    ports:
+      - "${GATEWAY_PORT:-8000}:8000"
+    depends_on:
+      - pedidos
+      - inventario
+      - pagos
+    networks:
+      - monitoreo_net
+
+networks:
+  monitoreo_net:
+    driver: bridge
