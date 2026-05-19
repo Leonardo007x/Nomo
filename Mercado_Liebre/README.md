@@ -2,7 +2,7 @@
 
 Plataforma para que pequeños negocios publiquen y administren su catálogo digital: tiendas, productos, categorías, imágenes (Cloudinary), asistente IA (Groq) y personalización visual.
 
-**Stack:** Docker Compose, API Gateway (Nginx), 6 microservicios de negocio (Node.js/Express), 6 bases MySQL (database-per-service), panel de operaciones, circuit breakers (Opossum) y balanceo de carga en el servicio de usuarios.
+**Stack:** Docker Compose, API Gateway (Nginx), 6 microservicios de negocio (Node.js/Express), 6 bases MySQL (database-per-service), circuit breakers (Opossum) y balanceo de carga en el servicio de usuarios.
 
 ---
 
@@ -34,7 +34,7 @@ Muchos negocios no tienen sitio propio, dependen de herramientas genéricas o re
 |-----|-------------|
 | Dueño de negocio | Crea tienda, productos, categorías, sube media, usa IA |
 | Cliente / visitante | Consulta catálogo público (`/api/tiendas/:id/vista-publica`) |
-| Operador / equipo técnico | Panel ops: monitoreo, logs, escenarios de resiliencia |
+| Operador / equipo técnico | Health vía gateway, `docker compose logs`, Postman/curl |
 
 ### Alcance actual del proyecto
 
@@ -121,7 +121,6 @@ flowchart TB
 | Media | `media-service` | 3004 | — | No |
 | Categorías | `categorias-service` | 3005 | — | No |
 | IA | `ia-service` | 3006 | — | No |
-| Ops | `ops-service` | 3007 | — | No (acceso vía gateway `/ops-panel/`) |
 | MySQL × 6 | `db-usuarios` … `db-ia` | 3306 | — | No |
 
 ### Microservicios, gateway y bases de datos
@@ -134,7 +133,6 @@ flowchart TB
 | **categorías** | `microservices/servicio-categorias/` | `db-categorias` / `categorias_db` | `categorias` |
 | **media** | `microservices/servicio-media/` | `db-media` / `media_db` | `media_assets` |
 | **ia** | `microservices/servicio-ia/` | `db-ia` / `ia_db` | `ia_generaciones` |
-| **ops** | `microservices/servicio-ops/` | — | Monitoreo y control operativo |
 | **gateway** | `gateway/` | — | Enrutamiento y balanceo |
 | **frontend** | raíz (`Dockerfile`, `paginas/`) | — | SPA React |
 
@@ -148,8 +146,6 @@ flowchart TB
 | Todos los MS | Su MySQL | Persistencia del dominio | Credenciales en `.env` |
 | Media | Cloudinary | Subida de imágenes | API keys en `.env` |
 | IA | Groq | Generación de texto | `GROQ_API_KEY` en `.env` |
-| Ops | Gateway | Agregar health de todos los servicios | Interno `gateway:80` |
-
 ### Flujo de una petición (ejemplo: login)
 
 1. Cliente → `http://localhost:8280/api/login` (frontend Nginx).
@@ -162,7 +158,6 @@ flowchart TB
 
 ```
 db-* (healthy) → microservicio de negocio → gateway → frontend
-ops-service → gateway (monitoreo); ops monta docker.sock
 ```
 
 Red única: `mercadoliebre-net` (driver `bridge`). Volúmenes: `usuarios_data`, `tiendas_data`, `catalogo_data`, `media_data`, `categorias_data`, `ia_data`.
@@ -180,7 +175,7 @@ Red única: `mercadoliebre-net` (driver `bridge`). Volúmenes: `usuarios_data`, 
 
 ### Responsabilidades por servicio
 
-Cada microservicio posee su código, Dockerfile, `init-db/init.sql` y puerto interno. Solo **ops** no tiene BD propia; orquesta observabilidad.
+Cada microservicio posee su código, Dockerfile, `init-db/init.sql` y puerto interno.
 
 ### Ventajas obtenidas
 
@@ -192,7 +187,7 @@ Cada microservicio posee su código, Dockerfile, `init-db/init.sql` y puerto int
 
 - **Consistencia entre dominios** sin transacciones distribuidas (referencias por `usuario_id` / `tienda_id`).
 - **Orden de arranque** de MySQL (healthchecks + `depends_on: service_healthy`).
-- **Depuración** de errores entre contenedores (logs Pino + panel ops + `requestId`).
+- **Depuración** de errores entre contenedores (logs Pino + `docker compose logs` + `requestId`).
 - **Circuit breaker** requiere volumen de fallos antes de abrir (`volumeThreshold` en Opossum).
 
 ---
@@ -229,11 +224,11 @@ Opossum permite una petición de prueba en `half_open`; si tiene éxito, vuelve 
 - **Por servicio:** `GET /api/health/{servicio}` → `status`: `ok` | `degraded` | `down`, `db.latency_ms`, `breakers[]`.
 - **Gateway:** `GET /api/health` → JSON con estrategia de balanceo.
 - **Readiness:** `GET /api/health/ready` en cada microservicio.
-- **Agregado:** `GET /api/ops/health-summary` (requiere token ops).
+- **Agregado:** consultar `/api/health/{servicio}` y `/api/health/breakers/{servicio}` por cada microservicio (vía gateway).
 
 ### Logs
 
-Logger **Pino** por servicio (`src/logger.js`). Eventos de breaker con `event: 'circuit_breaker'`. Consulta: `docker compose logs usuarios-service` o panel ops → logs reales vía `docker.sock`.
+Logger **Pino** por servicio (`src/logger.js`). Eventos de breaker con `event: 'circuit_breaker'`. Consulta: `docker compose logs usuarios-service` (o el servicio que corresponda).
 
 ### Ejemplos reales en el sistema
 
@@ -271,7 +266,7 @@ Se cubren **replicación**, **distribución de peticiones**, **balanceo Nginx** 
 | Réplicas | `usuarios-service` + `usuarios-service-2` en `docker-compose.yml` |
 | Distribución | `upstream usuarios_upstream` en `gateway/nginx.conf` (round-robin) |
 | Identificación | `INSTANCE_ID` en `config.js`; respuesta en `/api/health` |
-| Prueba | Panel ops o `GET /api/ops/load-balance/test?requests=40` |
+| Prueba | PowerShell o Postman sobre `/api/health/usuarios` (40 peticiones) |
 
 ```nginx
 # gateway/nginx.conf
@@ -302,7 +297,7 @@ Resultado esperado: reparto entre `usuarios-1` y `usuarios-2`.
 ### Limitaciones actuales
 
 - Una sola réplica por servicio (excepto usuarios).
-- Gateway y ops son punto único.
+- Gateway es punto único de entrada al backend.
 - Sin service mesh ni colas para desacoplar aún más.
 - Media e IA dependen de APIs externas (Cloudinary, Groq).
 
@@ -323,7 +318,7 @@ Resultado esperado: reparto entre `usuarios-1` y `usuarios-2`.
 |----------|-----|
 | `JWT_SECRET` | Firma y validación de tokens entre servicios |
 | `INTERNAL_SERVICE_TOKEN` | Rutas `/internal/*` (solo servidor a servidor) |
-| `OPS_PANEL_TOKEN` | API del panel ops (`Authorization: Bearer`) |
+| `OPS_PANEL_TOKEN` | Token laboratorio (`X-Ops-Lab-Token` en control de breakers) |
 | `MYSQL_*` | Credenciales de bases de datos |
 | `CLOUDINARY_*` | Solo servicio media |
 | `GROQ_API_KEY` | Solo servicio ia |
@@ -338,7 +333,7 @@ Resultado esperado: reparto entre `usuarios-1` y `usuarios-2`.
 
 | Requisito | Cumplimiento |
 |-----------|--------------|
-| ≥ 4 microservicios | 6 de negocio + ops |
+| ≥ 4 microservicios | 6 de negocio |
 | API Gateway | Nginx `gateway/` |
 | BD desacoplada | 6 MySQL, database-per-service |
 | HTTP entre servicios | tiendas ↔ catálogo ↔ categorías |
@@ -348,7 +343,7 @@ Resultado esperado: reparto entre `usuarios-1` y `usuarios-2`.
 | ≥ 2 endpoints por MS (GET + POST) | Ver tabla siguiente |
 | Circuit breaker + logs + half-open | Opossum + Pino |
 | Health + latencia + contadores | `/api/health`, `stats` en breakers |
-| Balanceo / escalabilidad | Réplicas usuarios + Nginx + prueba ops |
+| Balanceo / escalabilidad | Réplicas usuarios + Nginx + prueba con `/api/health/usuarios` |
 
 ### Endpoints por microservicio
 
@@ -360,7 +355,6 @@ Resultado esperado: reparto entre `usuarios-1` y `usuarios-2`.
 | **categorías** | `/api/categorias` | `/api/categorias` |
 | **media** | `/api/health` | `/api/media/upload` |
 | **ia** | `/api/health` | `/api/ia/generar` |
-| **ops** | `/api/ops/health-summary`, `/api/ops/load-balance/test` | `/api/ops/action` |
 
 Rutas de diagnóstico adicionales: `/api/health/breakers/{servicio}`, `/api/health/ready`.
 
@@ -402,8 +396,7 @@ Mercado_Liebre/
 │   ├── servicio-catalogo/
 │   ├── servicio-categorias/
 │   ├── servicio-media/
-│   ├── servicio-ia/
-│   └── servicio-ops/
+│   └── servicio-ia/
 ├── paginas/  componentes/  lib/
 ├── postman/
 ├── docs/                      # Documento técnico PDF (entrega)
@@ -431,7 +424,7 @@ servicio-*/
 | Comunicación | Postman o navegador: vista pública / productos |
 | Base de datos | Registro en `usuarios` o filas en MySQL |
 | Circuit breaker | Health OK → fallo → `open` → recuperación |
-| Monitoreo | Panel ops, JSON de `/api/health`, logs |
+| Monitoreo | JSON de `/api/health`, `docker compose logs`, Postman |
 | Balanceo | Resultado 40 peticiones `usuarios-1` / `usuarios-2` |
 
 ---
@@ -456,7 +449,6 @@ docker compose up --build
 |---------|-----|
 | Frontend | http://localhost:8280 |
 | API Gateway | http://localhost:3000 |
-| Panel operaciones | http://localhost:8280/ops-panel/ |
 | Health gateway | http://localhost:3000/api/health |
 
 ### Desarrollo frontend sin Docker
@@ -486,18 +478,33 @@ Proxy Vite (`vite.config.ts`) → `http://127.0.0.1:3000`.
 
 ---
 
-## 11. Panel de operaciones
+## 11. Monitoreo y laboratorio
 
-| URL | Descripción |
-|-----|-------------|
-| http://localhost:8280/ops-panel/ | UI vía frontend |
-| http://localhost:3000/ops-panel/ | UI vía gateway |
+**Health y breakers** (vía gateway):
 
-Funciones: health agregado, estado de breakers, logs Docker (`docker logs`), start/stop de contenedores en whitelist, laboratorio de circuit breaker, prueba de balanceo de carga.
+```http
+GET  http://localhost:3000/api/health
+GET  http://localhost:3000/api/health/usuarios
+GET  http://localhost:3000/api/health/breakers/tiendas
+POST http://localhost:3000/api/health/breakers/control/tiendas
+     Header: X-Ops-Lab-Token: <OPS_PANEL_TOKEN>
+     Body: {"action":"open","name":"tiendas-catalogo-productos"}
+```
 
-Autenticación API ops: header `Authorization: Bearer <OPS_PANEL_TOKEN>`.
+**Logs:**
 
-Documentación ampliada de resiliencia: `microservices/servicio-ops/GUIA_RESILIENCIA_MICROSERVICIOS.md`.
+```bash
+docker compose logs -f usuarios-service
+docker compose ps
+```
+
+**Prueba de balanceo (usuarios):**
+
+```powershell
+1..40 | ForEach-Object { (Invoke-RestMethod "http://localhost:3000/api/health/usuarios").instance_id } | Group-Object
+```
+
+Guías: `docs/GUIA_RESILIENCIA_MICROSERVICIOS.md`, `microservices/GUIA_RESILIENCIA_Y_MONITOREO_EQUIPO.md`.
 
 ---
 
@@ -516,6 +523,6 @@ Documentación ampliada de resiliencia: `microservices/servicio-ops/GUIA_RESILIE
 
 ## Referencias
 
-- Guía de resiliencia por servicio: `microservices/servicio-ops/GUIA_RESILIENCIA_MICROSERVICIOS.md`
+- Guía de resiliencia por servicio: `docs/GUIA_RESILIENCIA_MICROSERVICIOS.md`
 - Documento técnico formal (PDF): `docs/` (entrega académica)
 - Evidencias: `evidencias/`

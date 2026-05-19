@@ -350,28 +350,6 @@ services:
         condition: service_healthy
     restart: always
 
-  # --- Panel de operaciones (Docker socket + UI estática) ---
-  # Monta el socket real del motor Docker: start/stop y logs NO son simulados.
-  # Seguridad: definí OPS_PANEL_TOKEN en .env (obligatorio para la API).
-  ops-service:
-    build:
-      context: .
-      dockerfile: microservices/servicio-ops/Dockerfile
-    container_name: mercadoliebre_ops
-    env_file:
-      - .env
-    environment:
-      PORT: "${OPS_SERVICE_PORT:-3007}"
-      OPS_PANEL_TOKEN: "${OPS_PANEL_TOKEN:-ml_ops_panel_dev_token}"
-      OPS_LAB_TOKEN: "${OPS_PANEL_TOKEN:-ml_ops_panel_dev_token}"
-      GATEWAY_INTERNAL_URL: http://gateway:80
-      GATEWAY_HOST_PORT: "${GATEWAY_HOST_PORT:-3000}"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    networks:
-      - mercadoliebre-net
-    restart: always
-
   # ==========================================================
   # 3) CAPA DE ENTRADA
   # ==========================================================
@@ -395,7 +373,6 @@ services:
       - media-service
       - categorias-service
       - ia-service
-      - ops-service
     restart: always
 
   # --- Frontend SPA (Nginx) ---

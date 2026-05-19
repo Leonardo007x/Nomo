@@ -13,11 +13,6 @@ export default defineConfig(({ mode }) => {
             target: 'http://127.0.0.1:3000',
             changeOrigin: true,
           },
-          // Mismo comportamiento que el Nginx del contenedor frontend: panel ops vía gateway
-          '/ops-panel': {
-            target: 'http://127.0.0.1:3000',
-            changeOrigin: true,
-          },
         },
       },
       plugins: [react()],

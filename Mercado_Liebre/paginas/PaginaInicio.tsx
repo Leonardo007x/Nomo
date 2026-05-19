@@ -208,19 +208,6 @@ export default function PaginaInicio() {
             <Link to="/dinamica" className="hover:text-primary transition-colors text-primary">Dinámica</Link>
             <Link to="/terminos" className="hover:text-primary transition-colors">Términos</Link>
             <Link to="/privacidad" className="hover:text-primary transition-colors">Privacidad</Link>
-            {/*
-              Ruta absoluta /ops-panel/ : la atiende Nginx (Docker) o el proxy de Vite, no el HashRouter.
-              Si abrís solo /ops-panel sin barra, el servidor redirige a /ops-panel/.
-            */}
-            <a
-              href="/ops-panel/"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="Se abre en el mismo host y puerto que esta página (ej. :8280). No uses http://localhost/ sin puerto salvo que tengas el 80 mapeado."
-              className="inline-flex items-center rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-primary hover:bg-primary/20 transition-colors"
-            >
-              Panel ops (health / logs / Docker)
-            </a>
           </nav>
           <span className="text-xs text-text-muted/70 font-medium">© 2025 Mercado Liebre Inc.</span>
         </div>

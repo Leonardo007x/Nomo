@@ -1,7 +1,7 @@
 # Guía de resiliencia — 6 microservicios (para la defensa oral)
 
 Documento de estudio para el equipo. La profesora pregunta en **Usuarios, Tiendas, Catálogo, Categorías, Media e IA**.  
-**`servicio-ops` no tiene circuit breaker propio**: solo monitorea los otros seis (panel + Docker). Esta guía explica dónde está cada pieza en código real y cómo comprobar que funciona.
+Esta guía explica dónde está cada pieza en código real y cómo comprobar que funciona (gateway, `docker compose`, curl/Postman).
 
 ---
 
@@ -62,8 +62,6 @@ docker compose logs -f catalogo-service
 # Filtrar solo circuit breaker (JSON de Pino):
 docker compose logs usuarios-service 2>&1 | findstr circuit_breaker
 ```
-
-En el panel ops: target `usuarios-service` → **Traer logs** → vista **Solo lo importante**.
 
 ### ¿Dónde está el health check?
 
@@ -250,8 +248,8 @@ Autenticación y datos de usuario (registro, login, perfil). Es la **única fuen
 1. Stack arriba: `docker compose up -d`
 2. Estado sano: `curl http://localhost:3000/api/health/usuarios`
 3. Breakers: `curl http://localhost:3000/api/health/breakers/usuarios`
-4. **Abrir circuito:** panel ops → Stop `db-usuarios` → varios `POST /api/auth/login` desde el front o Postman → breaker pasa a **open**, login **503**
-5. Logs: `docker compose logs -f usuarios-service` o panel ops target `usuarios-service`
+4. **Abrir circuito:** `docker stop mercadoliebre_db_usuarios` → varios `POST /api/auth/login` desde el front o Postman → breaker pasa a **open**, login **503**
+5. Logs: `docker compose logs -f usuarios-service`
 6. Recuperar: Start `db-usuarios` → esperar ~15 s → refrescar health → **closed**
 
 ---
@@ -359,7 +357,7 @@ Igual patrón: `health.routes.js`, `logger.js`, logs en `tiendas.client.js`.
 1. `curl http://localhost:3000/api/health/categorias`
 2. `curl http://localhost:3000/api/health/breakers/categorias`
 3. Stop `tiendas-service` → operación de escritura en categorías → falla validación ownership
-4. Panel ops → monitoreo → fila `categorias` / `catalogo-tiendas-owner` o `categorias-tiendas-owner` en **open**
+4. `GET /api/health/breakers/categorias` → breaker en **open**
 
 ---
 
@@ -456,7 +454,7 @@ Checklist que pueden ejecutar juntos:
 | Start `db-usuarios` + esperar | Breaker vuelve a `closed` |
 | Stop `tiendas-service` + editar producto en catálogo | 403 + breaker `catalogo-tiendas-owner` puede ir a `open` |
 | Stop `catalogo-service` + vista pública tienda | 503 en tiendas con `reason: circuit_open` |
-| Panel `http://localhost:8280/ops-panel/` con `OPS_PANEL_TOKEN` | Monitoreo y logs reales (`dockerode`, no simulado) |
+| `GET /api/health/*` y `POST /api/health/breakers/control/*` con `OPS_PANEL_TOKEN` | Health, breakers, control de laboratorio |
 
 **Implementación real confirmada en código:**
 
@@ -474,15 +472,15 @@ Checklist que pueden ejecutar juntos:
 
 ---
 
-## 6. Rol de `servicio-ops` (solo monitoreo)
+## 6. Comandos de monitoreo (gateway + Docker)
 
-| Función | Archivo | No hace |
-|---------|---------|---------|
-| Agregar health de los 6 | `src/gatewayFetch.js` | No define breakers |
-| Logs Docker | `src/dockerCtl.js` + socket | No ejecuta `docker` CLI, usa API |
-| UI | `public/index.html` | No es microservicio de negocio |
-
-Para la materia: **explicar resiliencia en los 6 de arriba**; ops es herramienta de laboratorio.
+| Qué | Cómo |
+|-----|------|
+| Health por servicio | `GET http://localhost:3000/api/health/<servicio>` |
+| Solo breakers | `GET http://localhost:3000/api/health/breakers/<servicio>` |
+| Forzar open/close | `POST /api/health/breakers/control/<servicio>` + header `X-Ops-Lab-Token` |
+| Logs | `docker compose logs -f <servicio>` |
+| Estado contenedores | `docker compose ps` |
 
 ---
 

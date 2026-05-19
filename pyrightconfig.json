@@ -1,0 +1,16 @@
+{
+  "executionEnvironments": [
+    {
+      "root": "laboratorio_monitoreo",
+      "extraPaths": ["laboratorio_monitoreo/typings"],
+      "reportMissingImports": "none",
+      "reportMissingModuleSource": false
+    },
+    {
+      "root": "pet_shop",
+      "extraPaths": ["pet_shop/typings"],
+      "reportMissingImports": "none",
+      "reportMissingModuleSource": false
+    }
+  ]
+}
