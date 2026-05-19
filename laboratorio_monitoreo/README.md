@@ -14,7 +14,7 @@ Sistema distribuido compuesto por tres microservicios independientes (`pedidos`,
 
 ## Arquitectura
 
-
+![Arquitectura del sistema](./arquitectura.jpg)
 
 | Servicio   | Puerto | Estado        |
 |------------|--------|---------------|
@@ -158,6 +158,8 @@ gateway  | [gateway] [pagos] Circuito abierto - respuesta rapida 503
 gateway  | [gateway] [inventario] Peticion entrante a /inventario
 gateway  | [gateway] [inventario] Respuesta OK - tiempo: 0.09s
 ```
+
+![Evidencia — pedidos OK y activacion del circuit breaker](./evidencias/fase2_pedidos_ok_circuit_breaker.png)
 
 ---
 
@@ -303,6 +305,8 @@ curl http://localhost:8000/monitoreo
 gateway  | [gateway] [monitoreo] Estado de servicios: {..., 'pagos': {'health': {'status': 'down', 'response_time': 3.0}, 'circuit_breaker': {'state': 'open', 'fail_count': 3}}, 'summary': {'total_services': 3, 'errors': 1}}
 ```
 
+![Evidencia — monitoreo consolidado con pedidos caido](./evidencias/fase4_monitoreo_consolidado.png)
+
 ---
 
 ## FASE 5 - Metricas y Circuit Breaker
@@ -367,6 +371,10 @@ docker logs gateway
 ```
 
 Resumen de metricas:
+
+![Evidencia — circuit breaker abierto, respuesta 503](./evidencias/fase5_circuit_breaker_abierto.png)
+
+![Evidencia — docker logs gateway ciclo completo](./evidencias/fase5_logs_gateway.png)
 
 | Metrica                                      | Valor observado |
 |----------------------------------------------|-----------------|
