@@ -2,7 +2,7 @@ from flask import Flask, jsonify, request
 import logging
 import requests
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO, format='[gateway] %(message)s')
@@ -14,13 +14,13 @@ SERVICE_ENDPOINTS = {
     'pagos': 'http://pagos:5000'
 }
 
-circuit_state = {
-    'pagos': {
+circuit_state = {}
+for service in SERVICE_ENDPOINTS:
+    circuit_state[service] = {
         'fail_count': 0,
         'circuit_open': False,
         'opened_at': None
     }
-}
 MAX_FAILS = 3
 COOLDOWN_SECONDS = 10
 TIMEOUT_SECONDS = 3
@@ -33,7 +33,7 @@ def log_monitoring_status(status):
 def call_service(name, path, method='GET', json_data=None):
     url = f"{SERVICE_ENDPOINTS[name]}{path}"
     logger.info(f'[{name}] Petición entrante a {path}')
-    if name == 'pagos' and is_circuit_open(name):
+    if is_circuit_open(name):
         logger.info(f'[{name}] Circuito abierto - respuesta rápida 503')
         return None, {'error': 'Servicio no disponible'}, 503
 
@@ -47,8 +47,7 @@ def call_service(name, path, method='GET', json_data=None):
         elapsed = time.time() - start
         if response.status_code == 200:
             logger.info(f'[{name}] Respuesta OK - tiempo: {elapsed:.2f}s')
-            if name == 'pagos':
-                reset_circuit(name)
+            reset_circuit(name)
             return response.json(), None, response.status_code
 
         logger.info(f'[{name}] Error HTTP {response.status_code} - tiempo: {elapsed:.2f}s')
@@ -66,7 +65,7 @@ def is_circuit_open(name):
     state = circuit_state[name]
     if not state['circuit_open']:
         return False
-    if state['opened_at'] and datetime.utcnow() - state['opened_at'] > timedelta(seconds=COOLDOWN_SECONDS):
+    if state['opened_at'] and datetime.now(timezone.utc) - state['opened_at'] > timedelta(seconds=COOLDOWN_SECONDS):
         logger.info(f'[{name}] Circuito en modo semi-abierto - intentando recuperación')
         return False
     return True
@@ -78,7 +77,7 @@ def record_failure(name):
     if state['fail_count'] >= MAX_FAILS:
         if not state['circuit_open']:
             state['circuit_open'] = True
-            state['opened_at'] = datetime.utcnow()
+            state['opened_at'] = datetime.now(timezone.utc)
             logger.info(f'[{name}] Fallo numero {state["fail_count"]} de {MAX_FAILS} → circuito abierto')
 
 
@@ -168,12 +167,21 @@ def monitoreo():
     total_errors = 0
     for service in SERVICE_ENDPOINTS:
         status = check_service_health(service)
-        report[service] = status
+        state = circuit_state[service]
+        report[service] = {
+            'health': status,
+            'circuit_breaker': {
+                'state': 'open' if state['circuit_open'] else 'closed',
+                'fail_count': state['fail_count'],
+                'opened_at': state['opened_at'].isoformat() if state['opened_at'] else None
+            }
+        }
         if status['status'] != 'ok':
             total_errors += 1
     report['summary'] = {
         'total_services': len(SERVICE_ENDPOINTS),
-        'errors': total_errors
+        'errors': total_errors,
+        'timestamp': datetime.now(timezone.utc).isoformat()
     }
     log_monitoring_status(report)
     return jsonify(report)
